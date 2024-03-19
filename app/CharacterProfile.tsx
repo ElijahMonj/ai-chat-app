@@ -1,18 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
-import { Button, Platform, StyleSheet } from 'react-native';
-
-import EditScreenInfo from '@/components/EditScreenInfo';
+import { Platform, StyleSheet } from 'react-native';
+import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import { Text, View } from '@/components/Themed';
-import { FIREBASE_AUTH } from '@/FirebaseConfig';
 
-export default function ModalScreen() {
+export default function CharacterProfile() {
+  const params = useLocalSearchParams();
+  console.log(params)
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Modal</Text>
-      <Button title="Byebye" onPress={() => {FIREBASE_AUTH.signOut()}} />
+      <Text style={styles.title}>{params.name}</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/modal.tsx" />
-      
+     
       {/* Use a light status bar on iOS to account for the black space above the modal */}
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </View>

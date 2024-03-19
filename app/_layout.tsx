@@ -3,10 +3,13 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import {User, onAuthStateChanged} from 'firebase/auth';
 
+import AuthScreen from './AuthScreen';
+import { FIREBASE_AUTH } from '@/FirebaseConfig';
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -21,6 +24,13 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [user,setUser] = useState<User | null>(null);
+  useEffect(() => {
+      onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      
+      setUser(user);
+    });
+  }, []);
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
@@ -41,7 +51,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  if (user) {
+    return <RootLayoutNav />;
+  }else{
+    return <AuthScreen/>
+  }
 }
 
 function RootLayoutNav() {
@@ -52,6 +66,8 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="CharacterProfile" options={{ presentation: 'modal', title:"char" }} />
+        
       </Stack>
     </ThemeProvider>
   );
