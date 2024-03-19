@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { View, Text } from '@/components/Themed';
-import { FIREBASE_AUTH,FIREBASE_DB } from '@/FirebaseConfig';
-import { Button, TextInput } from 'react-native';
+import { FIREBASE_AUTH,FIREBASE_DB,FIREBASE_AUTH_WEB } from '@/FirebaseConfig';
+import { Button, Platform, TextInput } from 'react-native';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
 
@@ -12,7 +12,7 @@ const AuthScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const auth = FIREBASE_AUTH;
+    const auth = Platform.OS === 'web' ? FIREBASE_AUTH_WEB : FIREBASE_AUTH;
 
     const signIn = async () => {
         setLoading(true);

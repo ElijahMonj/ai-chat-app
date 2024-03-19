@@ -12,3 +12,4 @@ export const FIREBASE_AUTH = initializeAuth(FIREBASE_APP, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 export const FIREBASE_DB = getFirestore(FIREBASE_APP);
+export const FIREBASE_AUTH_WEB = getAuth(FIREBASE_APP);

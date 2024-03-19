@@ -8,7 +8,6 @@ import { useLocalSearchParams } from 'expo-router';
 
 const Conversation = () => {
   const params = useLocalSearchParams();
-  console.log(params)
 
   const user = FIREBASE_AUTH.currentUser;
   
@@ -73,7 +72,7 @@ const Conversation = () => {
     async function messageBot(){
       let history = messages.map((message) => [message.user._id === user?.uid ? 'user' : 'assistant', message.text]);
       
-      const botReply = await getResponse(history)
+      const botReply = await getResponse(history,params)
       setDoc(doc(FIREBASE_DB, "users", user?.uid as string,"conversations",params.id as string), 
       { 
         messages: arrayUnion(

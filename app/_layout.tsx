@@ -9,7 +9,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 import {User, onAuthStateChanged} from 'firebase/auth';
 
 import AuthScreen from './AuthScreen';
-import { FIREBASE_AUTH } from '@/FirebaseConfig';
+import { FIREBASE_AUTH,FIREBASE_AUTH_WEB } from '@/FirebaseConfig';
+import { Platform } from 'react-native';
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -26,10 +27,16 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [user,setUser] = useState<User | null>(null);
   useEffect(() => {
-      onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      
-      setUser(user);
-    });
+    if(Platform.OS === 'web'){
+      onAuthStateChanged(FIREBASE_AUTH_WEB, (user) => {
+        setUser(user);
+      });
+    }else{
+        onAuthStateChanged(FIREBASE_AUTH, (user) => {
+        setUser(user);
+      });
+    }
+
   }, []);
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
