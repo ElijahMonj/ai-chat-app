@@ -18,7 +18,7 @@ import { collection, onSnapshot } from 'firebase/firestore';
 
 const TabOneScreen = () => {
   const [conversations,setConversations] = useState<any[] | null>(null);
-  const user = Platform.OS === 'web' ? FIREBASE_AUTH_WEB.currentUser : FIREBASE_AUTH.currentUser
+  const user = FIREBASE_AUTH.currentUser
   useEffect(() => {
     if(!user) return;
     const conversationRef=collection(FIREBASE_DB, 'users',user?.uid as string, 'conversations');

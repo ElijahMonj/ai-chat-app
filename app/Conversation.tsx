@@ -2,19 +2,18 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { GiftedChat, IMessage } from 'react-native-gifted-chat'
 import {addDoc, arrayUnion, collection, doc, setDoc, query, where, onSnapshot, getDoc} from 'firebase/firestore'
 import {FIREBASE_AUTH, FIREBASE_DB} from '@/FirebaseConfig' 
-
-import getResponse from './actions/getResponse';
 import { useLocalSearchParams } from 'expo-router';
+import axios from 'axios';
 
 const Conversation = () => {
   const params = useLocalSearchParams();
-
   const user = FIREBASE_AUTH.currentUser;
   
   const [messages, setMessages] = useState<IMessage[]>([])
   const docRef = doc(FIREBASE_DB, 'users', user?.uid as string, 'conversations', params.id as string);
 
   useEffect(() => {
+    
     setDoc(doc(FIREBASE_DB, "users", user?.uid as string,"conversations",params.id as string), 
           { 
             messages: arrayUnion(
@@ -70,13 +69,26 @@ const Conversation = () => {
    
     }, [])
     async function messageBot(){
+      let token = await user?.getIdToken().then((token) => {return token});
+      
       let history = messages.map((message) => [message.user._id === user?.uid ? 'user' : 'assistant', message.text]);
       
-      const botReply = await getResponse(history,params)
+      const getReply = await axios.post(`http://192.168.254.141:3000/chat`, {
+        history,
+        params
+      }
+      ,{
+        headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+        }
+      });
+      
+      const botReply = await getReply.data.response;
       setDoc(doc(FIREBASE_DB, "users", user?.uid as string,"conversations",params.id as string), 
       { 
         messages: arrayUnion(
-          ...[   // <=== Note the spread operator
+          ...[ 
           botReply
           ]
         ),

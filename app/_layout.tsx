@@ -27,16 +27,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [user,setUser] = useState<User | null>(null);
   useEffect(() => {
-    if(Platform.OS === 'web'){
-      onAuthStateChanged(FIREBASE_AUTH_WEB, (user) => {
-        setUser(user);
-      });
-    }else{
         onAuthStateChanged(FIREBASE_AUTH, (user) => {
         setUser(user);
       });
-    }
-
   }, []);
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
