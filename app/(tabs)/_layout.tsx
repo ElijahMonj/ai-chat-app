@@ -52,15 +52,15 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: 'Create',
-          tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={color} />,
+          title: 'Characters',
+          tabBarIcon: ({ color }) => <TabBarIcon name="group" color={color} />,
           headerRight: () => (
-            <Link href="/modal" asChild>
+            <Link href="/create" asChild>
               <Pressable>
                   
                 {({ pressed }) => (
                   <FontAwesome
-                    name="info-circle"
+                    name="user-plus"
                     size={25}
                     color={Colors[colorScheme ?? 'light'].text}
                     style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}

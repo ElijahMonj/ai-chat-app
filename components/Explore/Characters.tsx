@@ -49,11 +49,13 @@ const Characters: React.FC = () => {
       next: (snapShot) => {
         const cIds: any[] = [];
         snapShot.docs.forEach((doc)=>{
-          cIds.push({
-            id:doc.id,
-            ...doc.data()
-          })
-          
+          //check if custom true'
+          if(!doc.data().custom){
+            cIds.push({
+              id:doc.id,
+              ...doc.data()
+            })
+          }
         });
         setCharacters(cIds);
       }
@@ -75,8 +77,7 @@ const Characters: React.FC = () => {
           <>
           {characters.map(character => (
             <Card key={character.id} character={character} onPress={() => {}} />
-          ))}
-          
+          ))}    
           </>
         }
         </>     
@@ -120,6 +121,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 10,
+    flex: 1,
   },
   name: {
     fontSize: 18,

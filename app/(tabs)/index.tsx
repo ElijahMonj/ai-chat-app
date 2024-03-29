@@ -45,8 +45,6 @@ const TabOneScreen = () => {
               setConversations(conversationData);
             }
           });
-        
-        
       }
     });
   },[])
