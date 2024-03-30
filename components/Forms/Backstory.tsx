@@ -30,7 +30,7 @@ const Backstory: React.FC<BackstoryProps> = ({nextStep,prevStep,backstory,setBac
                 
                 <View style={styles.buttons}>
                     <Button title="Back" onPress={prevStep} />
-                    <Button title="Next" onPress={nextStep} />
+                    <Button title="Next" onPress={nextStep} disabled={backstory.length<10}/>
                 </View>  
         </View>
     );
@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginBottom: 20,
         padding: 10,
+        textAlignVertical: 'top'
       },
 });
 export default Backstory;

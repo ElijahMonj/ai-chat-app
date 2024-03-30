@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import {User, onAuthStateChanged} from 'firebase/auth';
-
+import { Text,View } from '@/components/Themed';
 import AuthScreen from './AuthScreen';
 import { FIREBASE_AUTH,FIREBASE_AUTH_WEB } from '@/FirebaseConfig';
 import { Platform } from 'react-native';
@@ -25,7 +25,7 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [user,setUser] = useState<User | null>(null);
+  const [user,setUser] = useState<User | null | number>(0);
   useEffect(() => {
         onAuthStateChanged(FIREBASE_AUTH, (user) => {
         setUser(user);
@@ -53,7 +53,19 @@ export default function RootLayout() {
 
   if (user) {
     return <RootLayoutNav />;
-  }else{
+  }else if(user===0){
+    return (
+      <View style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+      }}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+  else{
     return <AuthScreen/>
   }
 }

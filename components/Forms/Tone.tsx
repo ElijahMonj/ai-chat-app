@@ -29,7 +29,7 @@ const Tone: React.FC<ToneProps> = ({nextStep,prevStep,tone,setTone}) => {
             </View>
                 <View style={styles.buttons}>
                     <Button title="Back" onPress={prevStep} />
-                    <Button title="Next" onPress={nextStep} />
+                    <Button title="Next" onPress={nextStep} disabled={tone.length<10}/>
                 </View>  
         </View>
     );
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginBottom: 20,
         padding: 10,
+        textAlignVertical: 'top'
       },
 });
 export default Tone;

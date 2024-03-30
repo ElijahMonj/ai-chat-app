@@ -13,7 +13,7 @@ const Conversation = () => {
   const docRef = doc(FIREBASE_DB, 'users', user?.uid as string, 'conversations', params.id as string);
 
   useEffect(() => {
-    
+   
     setDoc(doc(FIREBASE_DB, "users", user?.uid as string,"conversations",params.id as string), 
           { 
             messages: arrayUnion(
@@ -73,7 +73,7 @@ const Conversation = () => {
       
       let history = messages.map((message) => [message.user._id === user?.uid ? 'user' : 'assistant', message.text]);
       
-      const getReply = await axios.post(`http://192.168.254.141:3000/chat`, {
+      const getReply = await axios.post(`https://ai-chat-api-vercel.vercel.app/chat`, {
         history,
         params
       }

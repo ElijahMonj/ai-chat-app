@@ -30,7 +30,7 @@ const Description: React.FC<DescriptionProps> = ({nextStep,prevStep,setDescripti
                 
                 <View style={styles.buttons}>
                     <Button title="Back" onPress={prevStep} />
-                    <Button title="Next" onPress={nextStep} />
+                    <Button title="Next" onPress={nextStep} disabled={description.length<10}/>
                 </View>  
         </View>
     );
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'space-between',
-        alignItems: 'center',
+       
       },
       buttons:{
         flexDirection: 'row',
@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginBottom: 20,
         padding: 10,
+        textAlignVertical: 'top'
       },
 });
 export default Description;

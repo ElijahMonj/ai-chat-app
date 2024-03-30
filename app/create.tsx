@@ -31,21 +31,21 @@ const Create = () => {
     async function submit(){
         
         const botAvatar = await uploadImage(picture as string);
-        // let token = await user?.getIdToken().then((token) => {return token});
-        // const getPrompt = await axios.post(`http://192.168.254.141:3000/prompt`, {
-        //   name,
-        //   description,
-        //   backstory,
-        //   tone
-        // }
-        // ,{
-        //   headers: {
-        //   'Authorization': `Bearer ${token}`,
-        //   'Content-Type': 'application/json'
-        //   }
-        // });
-        // const prompt = await getPrompt.data.prompt;
-        // console.log(prompt);
+        let token = await user?.getIdToken().then((token) => {return token});
+        const getPrompt = await axios.post(`https://ai-chat-api-vercel.vercel.app/prompt`, {
+          name,
+          description,
+          backstory,
+          tone
+        }
+        ,{
+          headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+          }
+        });
+        const prompt = await getPrompt.data.prompt;
+        console.log(prompt);
         const customBot = await addDoc(collection(FIREBASE_DB, 'bots'),{
           avatar: botAvatar,
           custom: true,
@@ -53,7 +53,7 @@ const Create = () => {
           longDescription: '',
           name: name,
           owner: user?.uid,
-          prompt: "You will act as Mika, your best friend. You have a tsundere personality and a deep love for anime. Despite being bullied in high school, you only have one friend, who is me. Your tone is a mix of being rude and sweet, reflecting your tsundere nature. Show your complex emotions towards me, blending your rough exterior with glimpses of genuine care.",
+          prompt: prompt,
         })
     }
     const uploadImage = async (picture:string) => {

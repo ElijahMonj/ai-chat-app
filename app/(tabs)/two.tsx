@@ -27,7 +27,7 @@ const Card: React.FC<CardProps> = ({ character, onPress }) => {
   
   return (
     //@ts-ignore
-    <Link href={{ }} asChild>
+    <Link href={{ pathname: "/Conversation", params: character }} asChild>
     <TouchableOpacity onPress={onPress} style={styles.card} activeOpacity={0.6}>
       <Image source={{ uri: character.avatar }} style={styles.image} />
       <View style={styles.details}>
@@ -82,7 +82,7 @@ export default function TabTwoScreen() {
                     {customCharacters.length > 0 ? 
                     <>
                     {customCharacters.map(character => (
-                      <Card key={character.id} character={character} onPress={() => {}} />
+                      <Card key={character.id} character={character} onPress={() => console.log(character)} />
                     ))}   
                     </>  
                     : 
@@ -93,7 +93,7 @@ export default function TabTwoScreen() {
                       marginVertical:'50%'
                       }}>   
                       <Text style={{marginBottom:20}}>You have no custom characters, create one!</Text>
-                      <Link href={'/create'}>
+                      <Link href={'/create'} asChild>
                         <Button title="Create Character"/>
                       </Link>      
                     </View>

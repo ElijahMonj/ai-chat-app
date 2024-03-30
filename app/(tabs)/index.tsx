@@ -13,11 +13,13 @@ import ConversationBox from '@/components/Chats/ConversationBox';
 import EmptyConversation from '@/components/Chats/EmptyConversation';
 import { FIREBASE_AUTH, FIREBASE_DB,FIREBASE_AUTH_WEB } from '@/FirebaseConfig';
 import { useEffect, useState } from 'react';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot,doc } from 'firebase/firestore';
 
 
 const TabOneScreen = () => {
   const [conversations,setConversations] = useState<any[] | null>(null);
+  const [lastMessage,setLastMessage] = useState<any | null>(null);
+
   const user = FIREBASE_AUTH.currentUser
   useEffect(() => {
     if(!user) return;
@@ -27,6 +29,7 @@ const TabOneScreen = () => {
         const cIds: any[] = [];
         snapShot.docs.forEach((doc)=>{
           cIds.push(doc.id)
+          
         });
 
           const conversationRef=collection(FIREBASE_DB, 'bots');
