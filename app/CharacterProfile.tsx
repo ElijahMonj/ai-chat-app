@@ -17,7 +17,7 @@ export default function CharacterProfile() {
       <View style={styles.data}>
 
         <Text style={styles.longDescription}>{params.longDescription}</Text>
-        <Link href={{ pathname: "/Conversation", params: params }} asChild>
+        <Link href={{ pathname: "/conversation/[id]", params:{id:params.id as string} }} asChild>
           <Button title="Chat now"/>
         </Link>
       </View>

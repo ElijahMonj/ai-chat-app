@@ -1,9 +1,9 @@
 import { Link } from "expo-router";
 import { View,Text } from "../Themed";
-import { StyleSheet,Image, TouchableOpacity } from "react-native";
+import { StyleSheet,Image, TouchableOpacity, Pressable } from "react-native";
 import { addDoc, collection, doc, setDoc,arrayUnion, getDoc, onSnapshot  } from "firebase/firestore";
 import { FIREBASE_AUTH, FIREBASE_DB } from "@/FirebaseConfig";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 interface ConversationBoxProps {
     conversation: {
       id: string;
@@ -16,17 +16,16 @@ interface ConversationBoxProps {
 const ConversationBox =({conversation}:ConversationBoxProps) => {
     const user = FIREBASE_AUTH.currentUser;
     const docRef = doc(FIREBASE_DB, 'users', user?.uid as string, 'conversations', conversation.id as string);
+    
     const [lastMessage,setLastMessage] = useState<string | null>(null);
-    useEffect(() => {
-     
-
+    useLayoutEffect(() => {
+    
       const subscriber = onSnapshot(docRef, {
         next: (snapShot) => {
           if(snapShot.exists()){
           let messages = snapShot.data().messages;
           messages.reverse();
             if(messages.length>0){
-              
               setLastMessage(messages[0].text);
             }
           }
@@ -35,8 +34,8 @@ const ConversationBox =({conversation}:ConversationBoxProps) => {
 
     }, []);
     return ( 
-      <Link href={{ pathname: "/Conversation", params: conversation }} asChild>
-        <TouchableOpacity style={styles.container} activeOpacity={0.6} onPress={()=>{
+      <Link href={{ pathname: "/conversation/[id]", params:{id:conversation.id} }} asChild>
+        <Pressable style={styles.container} onPress={()=>{
         }}>
             <Image source={{ uri:conversation.avatar }} style={styles.image} />
             <View style={styles.textContainer}>
@@ -45,8 +44,8 @@ const ConversationBox =({conversation}:ConversationBoxProps) => {
                 <Text style={{fontWeight:'100'}}>Start a conversation with {conversation.name}</Text>
                 : lastMessage}</Text>
             </View>
-        </TouchableOpacity>
-        </Link>
+        </Pressable>
+      </Link>
      );
 }
 const styles = StyleSheet.create({

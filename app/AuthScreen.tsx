@@ -11,6 +11,8 @@ const AuthScreen = () => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [isLogin,setIsLogin] = useState(true);
     const auth = FIREBASE_AUTH;
@@ -40,11 +42,18 @@ const AuthScreen = () => {
     }
     const signUp = async () => {
         setLoading(true);
+        if(password!=confirmPassword){
+            Alert.alert("Passwords do not match","Please make sure the passwords match");
+            setLoading(false);
+            return;
+        }
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-
             const userRef = doc(FIREBASE_DB, 'users', auth?.currentUser?.uid as string);
-            await setDoc(userRef, {email: auth?.currentUser?.email});
+            await setDoc(userRef, {
+                email: auth?.currentUser?.email,
+                name: name,
+            });
         } catch (error) {
             const errorCode = (error as any).code as string;
             if(errorCode=="auth/invalid-email"){
@@ -67,7 +76,7 @@ const AuthScreen = () => {
            
             {isLogin ? 
                 <>
-                     <Text style={styles.title}>Login</Text>
+                     <Text style={styles.title}>Sign-in</Text>
                         <TextInput
                             style={styles.input}
                             placeholder="Email"
@@ -101,17 +110,31 @@ const AuthScreen = () => {
                         />
                         <TextInput
                             style={styles.input}
+                            placeholder="Name"
+                            value={name}
+                            onChangeText={(text) => setName(text)}
+                        />
+                        <TextInput
+                            style={styles.input}
                             placeholder="Password"
                             value={password}
                             secureTextEntry={true}
                             onChangeText={(text) => setPassword(text)}
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Confirm Password"
+                            value={confirmPassword}
+                            secureTextEntry={true}
+                            onChangeText={(text) => setConfirmPassword(text)}
                         />
                         {loading ? (
                             <Text>Loading...</Text>
                         ) : (
                             <>
                             
-                            <Button title="Create Account" onPress={signUp} />
+                            <Button title="Create Account" onPress={signUp}
+                            disabled={email.length==0||name.length==0||password.length==0||confirmPassword.length==0}/>
                             <Text>Already have an account? <Text onPress={()=>setIsLogin(true)}>Sign-in</Text></Text>
                             </>
                         )}
@@ -126,6 +149,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       padding: 20,
+      flexGrow: 1,
     },
     title: {
       fontSize: 24,

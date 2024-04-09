@@ -6,6 +6,7 @@ import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { FIREBASE_AUTH } from '@/FirebaseConfig';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -32,19 +33,18 @@ export default function TabLayout() {
           title: 'Conversations',
           tabBarIcon: ({ color }) => <TabBarIcon name="comments-o" color={color} />,
           headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                  
+            
+              <Pressable onPress={() => {FIREBASE_AUTH.signOut()}}> 
                 {({ pressed }) => (
                   <FontAwesome
-                    name="user"
+                    name="sign-out"
                     size={25}
                     color={Colors[colorScheme ?? 'light'].text}
                     style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                   />
                 )}
               </Pressable>
-            </Link>
+           
           ),
           
         }}

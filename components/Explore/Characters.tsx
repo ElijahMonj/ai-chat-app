@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, TouchableOpacity, StyleSheet, Dimensions,SafeAreaView,ScrollView, ActivityIndicator } from 'react-native';
+import { Image, TouchableOpacity, StyleSheet, Dimensions,SafeAreaView,ScrollView, ActivityIndicator, Pressable } from 'react-native';
 import {View, Text} from '@/components/Themed'
 import { Link } from 'expo-router';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
@@ -27,13 +27,13 @@ const Card: React.FC<CardProps> = ({ character, onPress }) => {
   return (
     //@ts-ignore
     <Link href={{ pathname: "/CharacterProfile", params: character }} asChild>
-    <TouchableOpacity onPress={onPress} style={styles.card} activeOpacity={0.6}>
+    <Pressable onPress={onPress} style={styles.card} >
       <Image source={{ uri: character.avatar }} style={styles.image} />
       <View style={styles.details}>
         <Text style={styles.name}>{character.name}</Text>
         <Text style={styles.description}>{character.description}</Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
     </Link>
   );
 };
@@ -110,6 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginBottom: 10,
     elevation: 5,
+    marginTop: 10,
   },
   image: {
     width: '100%',

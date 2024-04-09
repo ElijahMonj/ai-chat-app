@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { View,Text } from '@/components/Themed';
-import { Button,StyleSheet,Image, TouchableOpacity } from 'react-native';
+import { Button,StyleSheet,Image, TouchableOpacity, Pressable } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 interface PictureProps {
+    nextStep: () => void;
     prevStep: () => void;
     submit: () => void;
     picture: string | null;
     setPicture: (text: string) => void;
 }
 
-const Picture: React.FC<PictureProps> = ({prevStep,submit,picture,setPicture}) => {
+const Picture: React.FC<PictureProps> = ({prevStep,submit,picture,setPicture,nextStep}) => {
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -27,13 +28,13 @@ const Picture: React.FC<PictureProps> = ({prevStep,submit,picture,setPicture}) =
         <View style={styles.container}>
             <Text>Choose a picture for your character</Text>
             <View>
-            <TouchableOpacity onPress={pickImage}>
+            <Pressable onPress={pickImage}>
                 <Image
                 style={styles.logo}
                 source={{
                 uri: !picture ? 'https://firebasestorage.googleapis.com/v0/b/test-auth-417304.appspot.com/o/upload.png?alt=media&token=9ca8e0c1-86ea-43aa-ae59-cb4948228757' : picture,
                 }}/>
-            </TouchableOpacity>
+            </Pressable>
             
             </View>
                 <View style={styles.buttons}>

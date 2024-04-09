@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, StyleSheet,TouchableOpacity,Image,SafeAreaView,ScrollView, Button } from 'react-native';
+import { ActivityIndicator, Dimensions, StyleSheet,Pressable,Image,SafeAreaView,ScrollView, Button } from 'react-native';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
@@ -27,13 +27,13 @@ const Card: React.FC<CardProps> = ({ character, onPress }) => {
   
   return (
     //@ts-ignore
-    <Link href={{ pathname: "/Conversation", params: character }} asChild>
-    <TouchableOpacity onPress={onPress} style={styles.card} activeOpacity={0.6}>
+    <Link href={{ pathname: "/conversation/[id]", params:{id:character.id} }} asChild>
+    <Pressable onPress={onPress} style={styles.card}>
       <Image source={{ uri: character.avatar }} style={styles.image} />
       <View style={styles.details}>
         <Text style={styles.name}>{character.name}</Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
     </Link>
   );
 };
@@ -132,6 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginBottom: 10,
     elevation: 5,
+    marginTop: 10,
   },
   image: {
     width: '100%',
