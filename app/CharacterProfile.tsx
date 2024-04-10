@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { Button, Platform, StyleSheet,Image } from 'react-native';
 import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
-import { Text, View } from '@/components/Themed';
+import { ButtonThemed, Text, View } from '@/components/Themed';
 import { Link } from "expo-router";
 
 export default function CharacterProfile() {
@@ -18,7 +18,7 @@ export default function CharacterProfile() {
 
         <Text style={styles.longDescription}>{params.longDescription}</Text>
         <Link href={{ pathname: "/conversation/[id]", params:{id:params.id as string} }} asChild>
-          <Button title="Chat now"/>
+          <ButtonThemed title="Chat now"/>
         </Link>
       </View>
       

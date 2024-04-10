@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View,Text } from '@/components/Themed';
+import { View,Text, ButtonThemed } from '@/components/Themed';
 import { Button,StyleSheet,Image, TouchableOpacity, Pressable } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -32,14 +32,14 @@ const Picture: React.FC<PictureProps> = ({prevStep,submit,picture,setPicture,nex
                 <Image
                 style={styles.logo}
                 source={{
-                uri: !picture ? 'https://firebasestorage.googleapis.com/v0/b/test-auth-417304.appspot.com/o/upload.png?alt=media&token=9ca8e0c1-86ea-43aa-ae59-cb4948228757' : picture,
+                uri: !picture ? 'https://firebasestorage.googleapis.com/v0/b/test-auth-417304.appspot.com/o/assets%2Fupload.png?alt=media&token=d3c5ab9b-7c07-43f5-9bbf-17c621f311bd' : picture,
                 }}/>
             </Pressable>
             
             </View>
                 <View style={styles.buttons}>
-                    <Button title="Back" onPress={prevStep} />
-                    <Button title="Next" disabled={!picture} onPress={submit}/>
+                    <ButtonThemed title="Back" onPress={prevStep} />
+                    <ButtonThemed title="Next" disabled={!picture} onPress={submit}/>
                 </View>
         </View>
     );

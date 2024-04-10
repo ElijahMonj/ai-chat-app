@@ -1,4 +1,4 @@
-import {View, Text} from '@/components/Themed'
+import {View, Text, ButtonThemed} from '@/components/Themed'
 import { ActivityIndicator, Button, StyleSheet, Image } from 'react-native';
 import Picture from '@/components/Forms/Picture'
 import Description from '@/components/Forms/Description';
@@ -117,22 +117,22 @@ const Create = () => {
                 <View style={styles.container}>
                       {creating ? 
                       <View style={styles.containerLoading}>
-                          <ActivityIndicator size="large" /> 
+                          <ActivityIndicator size="large" color="#28bc64"/> 
                           <Text style={{fontWeight:'100'}}>Creating character...</Text>
                       </View> 
                       : 
                       <View style={styles.containerLoading}>
                           <Image source={{ uri: picture ? picture : 'https://reactnative.dev/img/tiny_logo.png' }}
                           style={styles.logo} />
-                          <Link href={{ pathname: "/Conversation", params: customBot}} asChild>
-                            <Button title="Done" disabled={!customBot}/>
+                          <Link href={{ pathname: "/conversation/[id]", params: customBot.id}} asChild>
+                            <ButtonThemed title="Done" disabled={!customBot}/>
                           </Link>
                       </View>
                       }                       
                 </View>
                 }
             </View>
-            <Progress.Bar progress={progress} width={200} style={styles.progress} />
+            <Progress.Bar progress={progress} width={200} style={styles.progress} color="#28bc64"/>
         </View>
     );
 }

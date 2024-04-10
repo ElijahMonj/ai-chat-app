@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View,Text } from '@/components/Themed';
+import { View,Text, ButtonThemed } from '@/components/Themed';
 import { Button,StyleSheet, TextInput } from 'react-native';
 interface ToneProps {
     nextStep: () => void;
@@ -19,6 +19,7 @@ const Tone: React.FC<ToneProps> = ({nextStep,prevStep,tone,setTone}) => {
                 <TextInput
                         placeholder="How would the character talk to you?"
                         editable
+                        placeholderTextColor="#A6A7AF"
                         multiline
                         numberOfLines={6}
                         maxLength={250}
@@ -28,8 +29,8 @@ const Tone: React.FC<ToneProps> = ({nextStep,prevStep,tone,setTone}) => {
                     />
             </View>
                 <View style={styles.buttons}>
-                    <Button title="Back" onPress={prevStep} />
-                    <Button title="Next" onPress={nextStep} disabled={tone.length<10}/>
+                    <ButtonThemed title="Back" onPress={prevStep} />
+                    <ButtonThemed title="Next" onPress={nextStep} disabled={tone.length<10}/>
                 </View>  
         </View>
     );

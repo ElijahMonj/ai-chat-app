@@ -1,6 +1,6 @@
 import React from 'react';
-import { View,Text } from '@/components/Themed';
-import { Button, TextInput,StyleSheet } from 'react-native';
+import { View,Text, ButtonThemed } from '@/components/Themed';
+import { Button, TextInput,StyleSheet, Pressable, Animated } from 'react-native';
 import { Link } from 'expo-router';
 interface NameProps {
     nextStep: () => void;
@@ -18,14 +18,15 @@ const Name: React.FC<NameProps> = ({nextStep,name,setName}) => {
                     style={styles.input}
                     placeholder="Enter Character's name"
                     value={name}
+                    placeholderTextColor="#A6A7AF"
                     onChangeText={(text) => setName(text)}
                 />
                 <View style={styles.buttons}>
-                  <Link href="/two" asChild>
-                    <Button title="Back"  />
-                  </Link>
-                    
-                    <Button title="Next" onPress={nextStep}  disabled={name===''}/>
+                    <Link href="/two" asChild>
+                        <ButtonThemed title="Back" />
+                    </Link>
+                      
+                    <ButtonThemed title="Next" onPress={nextStep}  disabled={name===''}/>
                 </View>
                 
             </View>

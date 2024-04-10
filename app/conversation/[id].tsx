@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { GiftedChat, IMessage } from 'react-native-gifted-chat'
+import { GiftedChat, IMessage,InputToolbar, Actions, SystemMessage, Send } from 'react-native-gifted-chat'
 import {addDoc, arrayUnion, collection, doc, setDoc, query, where, onSnapshot, getDoc} from 'firebase/firestore'
 import {FIREBASE_AUTH, FIREBASE_DB} from '@/FirebaseConfig' 
 import { useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
-import { Platform } from 'react-native';
-
+import {useColorScheme} from '@/components/useColorScheme';
+import { Platform, View,Image } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const Conversation = () => {
   const user = FIREBASE_AUTH.currentUser;
@@ -13,7 +14,7 @@ const Conversation = () => {
   const [bot, setBot] = useState<any>(null);
   const [messages, setMessages] = useState<IMessage[]>([])
   const docRef = doc(FIREBASE_DB, 'users', user?.uid as string, 'conversations', params.id as string);
-  
+  const theme = useColorScheme() ?? 'light';
   useEffect(() => {
     const fetchData = async () => {
       const docSnap = await getDoc(doc(FIREBASE_DB, 'bots',params.id as string));
@@ -136,14 +137,52 @@ const Conversation = () => {
  
   }, [])
 
+  const customtInputToolbar = (props:any) => {
+    return (
+      <InputToolbar
+        {...props}
+        containerStyle={{
+          backgroundColor: theme === 'dark' ? '#000' : '#fff',
+          borderTopColor: "#E8E8E8",
+          
+          marginTop: 4,
+         
+        }}
+      />
+    );
+  };
     return (
         <GiftedChat
+        
           messages={messages}
+          textInputStyle = {{color: theme === 'dark' ? '#fff' : '#000'}}
           onSend={messages => onSend(messages)}
           user={{
             //@ts-ignore
             _id: user?.uid,
           }}
+          wrapperStyle={{
+            right: {
+              backgroundColor: "#28bc64"
+            },
+            left:{
+              backgroundColor: "#ebf7f0",
+            }
+          }}
+          renderInputToolbar={props => customtInputToolbar(props)}
+          renderSend={(props) => (
+            <Send
+              {...props}
+              containerStyle={{
+                
+                width: 60,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              
+              <Ionicons name="send" size={30} color="#28bc64" />
+            </Send> )}
         />
     )
 }

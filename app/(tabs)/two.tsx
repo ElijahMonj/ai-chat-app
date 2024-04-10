@@ -1,12 +1,13 @@
-import { ActivityIndicator, Dimensions, StyleSheet,Pressable,Image,SafeAreaView,ScrollView, Button } from 'react-native';
+import { ActivityIndicator, Dimensions, StyleSheet,Pressable,Image,SafeAreaView,ScrollView, Button, Platform, Alert } from 'react-native';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import { ButtonThemed, Text, View } from '@/components/Themed';
 import { useEffect, useState } from 'react';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { Link } from 'expo-router';
-const { width } = Dimensions.get('window');const cardWidth = (width - 20) / 2 - 10; 
+const { width } = Dimensions.get('window');
+const cardWidth = Platform.OS!="web" ? (width - 20) / 2 - 10: (width - 20) / 4 - 10; 
 
 interface Character {
   id: string;
@@ -33,6 +34,7 @@ const Card: React.FC<CardProps> = ({ character, onPress }) => {
       <View style={styles.details}>
         <Text style={styles.name}>{character.name}</Text>
       </View>
+      
     </Pressable>
     </Link>
   );
@@ -74,7 +76,7 @@ export default function TabTwoScreen() {
           
                 <View style={[styles.containerLoading, styles.horizontal]}>
             
-                  <ActivityIndicator size="large" />
+                  <ActivityIndicator size="large" color="#28bc64" />
                   
                 </View>
                 :
@@ -94,7 +96,7 @@ export default function TabTwoScreen() {
                       }}>   
                       <Text style={{marginBottom:20}}>You have no custom characters, create one!</Text>
                       <Link href={'/create'} asChild>
-                        <Button title="Create Character"/>
+                        <ButtonThemed title="Create Character"/>
                       </Link>      
                     </View>
                     } 
@@ -117,7 +119,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: "flex-start",
+    gap: 10,
     paddingHorizontal: 10,
   },
   horizontal: {
@@ -133,10 +136,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     elevation: 5,
     marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+        width: 0,
+        height: 6,
+    },
+    shadowOpacity: 0.37,
+    shadowRadius: 7.49,
   },
   image: {
     width: '100%',
-    height: 150,
+    height: cardWidth,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },

@@ -10,39 +10,34 @@ interface ConversationBoxProps {
       name: string;
       description:string
       avatar: string;
+      lastMessageText: string;
+      lastMessageTime: number;
     };
 }
 
 const ConversationBox =({conversation}:ConversationBoxProps) => {
-    const user = FIREBASE_AUTH.currentUser;
-    const docRef = doc(FIREBASE_DB, 'users', user?.uid as string, 'conversations', conversation.id as string);
-    
-    const [lastMessage,setLastMessage] = useState<string | null>(null);
-    useLayoutEffect(() => {
-    
-      const subscriber = onSnapshot(docRef, {
-        next: (snapShot) => {
-          if(snapShot.exists()){
-          let messages = snapShot.data().messages;
-          messages.reverse();
-            if(messages.length>0){
-              setLastMessage(messages[0].text);
-            }
-          }
+    const [botData,setBotData] = useState<any>(null);
+    useEffect(() => {     
+      const fetchData = async () => {
+        const docSnap = await getDoc(doc(FIREBASE_DB, 'bots',conversation.id as string));
+        if (docSnap.exists()) {
+          setBotData(docSnap.data());
+        } else {
+          console.log("No such document!");
         }
-      });
-
+      };
+      fetchData(); 
     }, []);
     return ( 
       <Link href={{ pathname: "/conversation/[id]", params:{id:conversation.id} }} asChild>
         <Pressable style={styles.container} onPress={()=>{
         }}>
-            <Image source={{ uri:conversation.avatar }} style={styles.image} />
+            <Image source={{ uri: botData ? botData.avatar:'https://firebasestorage.googleapis.com/v0/b/test-auth-417304.appspot.com/o/assets%2Fplaceholder.png?alt=media&token=cf3dfee7-4046-412b-9d64-eb1db80b3e44' }} style={styles.image} />
             <View style={styles.textContainer}>
-                <Text style={styles.name}>{conversation.name}</Text>
-                <Text numberOfLines={1}>{!lastMessage ? 
-                <Text style={{fontWeight:'100'}}>Start a conversation with {conversation.name}</Text>
-                : lastMessage}</Text>
+                <Text style={styles.name}>{botData ? botData.name : '...' }</Text>
+                <Text numberOfLines={1}>{!conversation.lastMessageText ? 
+                <Text style={{fontWeight:'100'}}>Start a conversation {botData ? `with ${botData.name}` : '...' } </Text>
+                : conversation.lastMessageText}</Text>
             </View>
         </Pressable>
       </Link>

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Image, TouchableOpacity, StyleSheet, Dimensions,SafeAreaView,ScrollView, ActivityIndicator, Pressable } from 'react-native';
+import { Image, TouchableOpacity, StyleSheet, Dimensions,SafeAreaView,ScrollView, ActivityIndicator, Pressable, Platform } from 'react-native';
 import {View, Text} from '@/components/Themed'
 import { Link } from 'expo-router';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { collection, onSnapshot } from 'firebase/firestore';
 const { width } = Dimensions.get('window');
-const cardWidth = (width - 20) / 2 - 10; // Assuming horizontal padding of 10
+const cardWidth = Platform.OS!="web" ? (width - 20) / 2 - 10: (width - 20) / 4 - 10; // Assuming horizontal padding of 10
 
 interface Character {
   id: string;
@@ -70,23 +70,22 @@ const Characters: React.FC = () => {
         
         <View style={[styles.containerLoading, styles.horizontal]}>
     
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" color="#28bc64"/>
           
         </View>
         :
           <>
           {characters.map(character => (
             <Card key={character.id} character={character} onPress={() => {}} />
-          ))}    
+          ))}      
           </>
         }
         </>     
         
-
     </View>
   );
 };
-
+//Platform.OS!="web" ? (width - 20) / 2 - 10: 200
 const styles = StyleSheet.create({
   containerLoading:{
     flex: 1,
@@ -96,8 +95,10 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: "flex-start",
+    gap: 10,
     paddingHorizontal: 10,
+    flexGrow: 0,
   },
   horizontal: {
     flexDirection: 'row',
@@ -106,15 +107,25 @@ const styles = StyleSheet.create({
   },
   card: {
     width: cardWidth,
+    height: "auto",
     borderRadius: 10,
     backgroundColor: '#fff',
     marginBottom: 10,
     elevation: 5,
     marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+        width: 0,
+        height: 6,
+    },
+    shadowOpacity: 0.37,
+    shadowRadius: 7.49,
+        
+        
   },
   image: {
     width: '100%',
-    height: 150,
+    height: cardWidth,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },

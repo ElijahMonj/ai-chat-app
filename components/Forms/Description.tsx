@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View,Text } from '@/components/Themed';
+import { View,Text, ButtonThemed } from '@/components/Themed';
 import { Button,StyleSheet, TextInput } from 'react-native';
 interface DescriptionProps {
     nextStep: () => void;
@@ -18,6 +18,7 @@ const Description: React.FC<DescriptionProps> = ({nextStep,prevStep,setDescripti
                 <Text>Description</Text>
                 <TextInput
                         editable
+                        placeholderTextColor="#A6A7AF"
                         placeholder="How would the character describe themselves?"
                         multiline
                         numberOfLines={6}
@@ -29,8 +30,8 @@ const Description: React.FC<DescriptionProps> = ({nextStep,prevStep,setDescripti
             </View>
                 
                 <View style={styles.buttons}>
-                    <Button title="Back" onPress={prevStep} />
-                    <Button title="Next" onPress={nextStep} disabled={description.length<10}/>
+                    <ButtonThemed title="Back" onPress={prevStep} />
+                    <ButtonThemed title="Next" onPress={nextStep} disabled={description.length<10}/>
                 </View>  
         </View>
     );

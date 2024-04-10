@@ -5,11 +5,11 @@ const TabThreeScreen = () => {
  
     return ( 
         <View style={styles.container}>
-          <SafeAreaView>  
-            <ScrollView>
+           
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
               <Characters/>
             </ScrollView>
-          </SafeAreaView>
+          
         </View>
      );
 }

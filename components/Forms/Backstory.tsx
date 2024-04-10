@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View,Text } from '@/components/Themed';
+import { View,Text, ButtonThemed } from '@/components/Themed';
 import { Button,StyleSheet, TextInput } from 'react-native';
 interface BackstoryProps {
     nextStep: () => void;
@@ -19,6 +19,7 @@ const Backstory: React.FC<BackstoryProps> = ({nextStep,prevStep,backstory,setBac
                 <TextInput
                         placeholder="What is the character's backstory?"
                         editable
+                        placeholderTextColor="#A6A7AF"
                         multiline
                         numberOfLines={6}
                         maxLength={250}
@@ -29,8 +30,8 @@ const Backstory: React.FC<BackstoryProps> = ({nextStep,prevStep,backstory,setBac
             </View>
                 
                 <View style={styles.buttons}>
-                    <Button title="Back" onPress={prevStep} />
-                    <Button title="Next" onPress={nextStep} disabled={backstory.length<10}/>
+                    <ButtonThemed title="Back" onPress={prevStep} />
+                    <ButtonThemed title="Next" onPress={nextStep} disabled={backstory.length<10}/>
                 </View>  
         </View>
     );
