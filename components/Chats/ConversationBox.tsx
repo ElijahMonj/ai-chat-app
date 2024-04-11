@@ -16,17 +16,19 @@ interface ConversationBoxProps {
 }
 
 const ConversationBox =({conversation}:ConversationBoxProps) => {
+    const collectionRef=collection(FIREBASE_DB, 'bots');
     const [botData,setBotData] = useState<any>(null);
     useEffect(() => {     
-      const fetchData = async () => {
-        const docSnap = await getDoc(doc(FIREBASE_DB, 'bots',conversation.id as string));
-        if (docSnap.exists()) {
-          setBotData(docSnap.data());
-        } else {
-          console.log("No such document!");
+
+      const subscriber = onSnapshot(collectionRef, {
+        next: (snapShot) => { 
+          snapShot.docs.forEach((doc)=>{ 
+            if(doc.id==conversation.id){
+              setBotData(doc.data());
+            }  
+          });
         }
-      };
-      fetchData(); 
+      });
     }, []);
     return ( 
       <Link href={{ pathname: "/conversation/[id]", params:{id:conversation.id} }} asChild>

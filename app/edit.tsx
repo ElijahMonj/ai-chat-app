@@ -1,29 +1,35 @@
 import { View,Text,ButtonThemed } from "@/components/Themed";
 import { useLocalSearchParams } from "expo-router";
 import {useColorScheme} from '@/components/useColorScheme';
-import { Platform, StyleSheet,Image, ActivityIndicator, TextInput, ScrollView, Pressable } from 'react-native';
+import { Platform, StyleSheet,Image, ActivityIndicator, TextInput, ScrollView, Pressable, ImageBackground } from 'react-native';
 import { Formik } from 'formik';
 import { Link,router } from "expo-router";
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { FIREBASE_DB } from "@/FirebaseConfig";
+import { collection, doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
+import { FIREBASE_AUTH, FIREBASE_DB } from "@/FirebaseConfig";
 import { useNavigation } from '@react-navigation/native'
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
-
+import * as ImagePicker from 'expo-image-picker';
+import axios from "axios";
+import { v4 as uuidv4 } from 'uuid';
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 const Edit = () => {
+    const collectionRef=collection(FIREBASE_DB, 'bots');
+    const user = FIREBASE_AUTH.currentUser;
     const nav = useNavigation();
     const theme = useColorScheme() ?? 'light';
     const inputTextColor= theme === 'light' ? '#000' : '#fff';
     const params = useLocalSearchParams();
     const [isLoading, setIsLoading] = useState(false);
+    const [displayImage, setDisplayImage] = useState<string | null>(null);
     const [character,setCharacter] = useState<any|null>(null);
     useEffect(() => {
       nav.setOptions({
         headerRight: () => (
           <Pressable onPress={() => {console.log("Delete")}}>
             {({ pressed }) => (
-              <MaterialIcons
+              <MaterialCommunityIcons
                 name="delete-outline"
                 size={25}
                 color={Colors[useColorScheme() ?? 'light'].text}
@@ -34,21 +40,123 @@ const Edit = () => {
         ),
       });
     }, []);
-    useEffect(() => {     
-        const fetchData = async () => {
-          const docSnap = await getDoc(doc(FIREBASE_DB, 'bots',params.id as string));
-          if (docSnap.exists()) {
-            if(docSnap.data().custom){
-                setCharacter(docSnap.data());
-            }else{
+    useEffect(() => {
+      
+      const subscriber = onSnapshot(collectionRef, {
+        next: (snapShot) => { 
+          snapShot.docs.forEach((doc)=>{
+            
+            if(doc.id==params.id){
+              
+              if(doc.data().custom && doc.data().owner==user?.uid){
+                setCharacter({
+                  id: doc.id,
+                  ...doc.data()
+                }); 
+                setDisplayImage(doc.data().avatar);
+              }else{
                 router.replace('/characters');
-            }
-          } else {
-            console.log("No such document!");
-          }
-        };
-        fetchData(); 
+              }
+                
+            }  
+          });
+        }
+      });
+     
       }, []);
+    const pickImage = async () => {
+      // No permissions request is necessary for launching the image library
+      let result = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,  
+        aspect: [1, 1],      
+        quality: 1,
+      });
+  
+      if (!result.canceled) {
+          setDisplayImage(result.assets[0].uri);
+      }
+    };
+  
+
+    async function submit(values:any){
+      setIsLoading(true);
+      let avatar = values.avatar;
+      if(avatar !== displayImage){
+        console.log('uploading new avatar')
+        const botAvatar = await uploadImage(displayImage as string);
+        avatar = botAvatar;
+        const desertRef = ref(getStorage(), values.avatar);
+
+          deleteObject(desertRef).then(() => {
+            console.log('deleted old avatar')
+          }).catch((error) => {
+            console.log(error)
+          });
+      }
+      
+      const token = await user?.getIdToken().then((token) => {return token});
+
+      const getPrompt = await axios.post(`https://ai-chat-api-vercel.vercel.app/prompt`, {
+          name:values.name,
+          description:values.description,
+          backstory:values.backstory,
+          tone:values.tone
+        }
+        ,{
+          headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+          }
+        });
+        const prompt = await getPrompt.data.prompt;
+        setDoc(doc(FIREBASE_DB, "bots", params.id as string),{
+          avatar: avatar,
+          custom: true,
+          description: values.description,
+          tone:values.tone,
+          backstory:values.backstory,
+          name: values.name,
+          owner: user?.uid,
+          prompt: prompt,
+        })
+
+        const customBotDoc = await getDoc(doc(collectionRef, params.id as string));
+        const customBotData = {
+          id: customBotDoc.id,
+          ...customBotDoc.data()
+        }
+        setCharacter(customBotData);
+        setIsLoading(false);
+    }
+
+  const uploadImage = async (picture:string) => {
+      try {
+        const uploadUrl = await uploadImageAsync(picture);
+        return uploadUrl;
+      } catch (e) {
+        console.log(e);
+        alert("Upload failed, sorry :(");
+      }
+  }
+  async function uploadImageAsync(uri:string) {
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+          resolve(xhr.response);
+        };
+        xhr.onerror = function (e) {
+          console.log(e);
+          reject(new TypeError("Network request failed"));
+        };
+        xhr.responseType = "blob";
+        xhr.open("GET", uri, true);
+        xhr.send(null);
+      });
+      const fileRef = ref(getStorage(), uuidv4());
+      await uploadBytes(fileRef, blob);
+      
+      return await getDownloadURL(fileRef);
+  }
     return ( 
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.container}>
@@ -66,14 +174,32 @@ const Edit = () => {
                 tone: character.tone as string,
                 backstory: character.backstory as string,
                }}
-              onSubmit={values => console.log(values)}>
+              onSubmit={values => submit(values)}>
               {({ handleChange, handleBlur, handleSubmit, values }) => (
               <View style={styles.form}>
                   <View style={{flexDirection:"row",width:'100%',gap:20,justifyContent:'space-around',flexGrow:1}}>
-                    <Image source={{
-                    uri: character.avatar as string,
-                    }} style={styles.avatar} />
-
+                    <Pressable onPress={pickImage}>
+                      <ImageBackground source={{uri: displayImage as string}} resizeMode="cover" style={styles.avatar} imageStyle={{ borderRadius: 65}}>             
+                          <Text style={
+                            {
+                              color: 'lightgray',
+                              fontSize: 20,
+                              lineHeight: 84,
+                              textAlign: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: '#000000c0',
+                              
+                            }
+                          }>
+                            <MaterialCommunityIcons
+                            name="image-edit"
+                            size={30}
+                            color='lightgray'
+                            style={{}}
+                          />                            
+                          </Text>
+                      </ImageBackground>
+                    </Pressable>
                     <View style={{width:'50%',alignSelf:'center'}}>
                       <Text>Name</Text>
                       <TextInput
@@ -129,7 +255,7 @@ const Edit = () => {
                         />
                     </View>
                     
-                    <ButtonThemed onPress={handleSubmit} title="Submit" width="100%"/>
+                    <ButtonThemed onPress={handleSubmit} title="Submit" width="100%" disabled={isLoading}/>
 
               </View>
             )}
@@ -170,6 +296,8 @@ const styles = StyleSheet.create({
       height: 130,
       borderRadius: 65,
       marginBottom: 10,
+      justifyContent: 'center',
+      overflow: 'hidden',
     },
     input: {
       width: '100%',
