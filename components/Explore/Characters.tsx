@@ -6,16 +6,7 @@ import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { collection, onSnapshot } from 'firebase/firestore';
 const { width } = Dimensions.get('window');
 const cardWidth = Platform.OS!="web" ? (width - 20) / 2 - 10: (width - 20) / 4 - 10; // Assuming horizontal padding of 10
-
-interface Character {
-  id: string;
-  name: string;
-  description: string;
-  avatar: string;
-  custom:Boolean;
-  prompt:string;
-  longDescription:string;
-}
+import Character from '@/constants/Character';
 
 interface CardProps {
   character: Character;
@@ -26,7 +17,7 @@ const Card: React.FC<CardProps> = ({ character, onPress }) => {
   
   return (
     //@ts-ignore
-    <Link href={{ pathname: "/CharacterProfile", params: character }} asChild>
+    <Link href={{ pathname: "/CharacterProfile", params: {id:character.id} }} asChild>
     <Pressable onPress={onPress} style={styles.card} >
       <Image source={{ uri: character.avatar }} style={styles.image} />
       <View style={styles.details}>
@@ -109,7 +100,7 @@ const styles = StyleSheet.create({
     width: cardWidth,
     height: "auto",
     borderRadius: 10,
-    backgroundColor: '#fff',
+
     marginBottom: 10,
     elevation: 5,
     marginTop: 10,
@@ -119,9 +110,7 @@ const styles = StyleSheet.create({
         height: 6,
     },
     shadowOpacity: 0.37,
-    shadowRadius: 7.49,
-        
-        
+    shadowRadius: 7.49,     
   },
   image: {
     width: '100%',

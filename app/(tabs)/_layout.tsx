@@ -7,6 +7,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { FIREBASE_AUTH } from '@/FirebaseConfig';
+import { MaterialIcons } from '@expo/vector-icons';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -36,8 +37,8 @@ export default function TabLayout() {
             
               <Pressable onPress={() => {FIREBASE_AUTH.signOut()}}> 
                 {({ pressed }) => (
-                  <FontAwesome
-                    name="sign-out"
+                  <MaterialIcons
+                    name="logout"
                     size={25}
                     color={Colors[colorScheme ?? 'light'].text}
                     style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
@@ -50,17 +51,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="characters"
         options={{
-          title: 'Characters',
+          title: 'My Characters',
           tabBarIcon: ({ color }) => <TabBarIcon name="group" color={color} />,
           headerRight: () => (
             <Link href="/create" asChild>
               <Pressable>
-                  
                 {({ pressed }) => (
-                  <FontAwesome
-                    name="user-plus"
+                  <MaterialIcons
+                    name="person-add"
                     size={25}
                     color={Colors[colorScheme ?? 'light'].text}
                     style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
@@ -72,10 +72,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="three"
+        name="explore"
         options={{
           title: 'Explore',
-          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="compass" color={color} />,
         }}
       />
     </Tabs>

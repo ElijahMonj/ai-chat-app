@@ -8,7 +8,9 @@ import {useColorScheme} from '@/components/useColorScheme';
 import { Platform, View,Image } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Text } from '@/components/Themed';
+import { useNavigation } from '@react-navigation/native'
 const Conversation = () => {
+  const nav = useNavigation();
   const user = FIREBASE_AUTH.currentUser;
   const params = useLocalSearchParams();
   const [bot, setBot] = useState<any>(null);
@@ -26,6 +28,9 @@ const Conversation = () => {
           id: docSnap.id,
           ...docSnap.data()
         
+        });
+        nav.setOptions({
+          title:docSnap.data().name,
         });
       } else {
         console.log("No such document!");

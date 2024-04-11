@@ -24,7 +24,7 @@ const Name: React.FC<NameProps> = ({nextStep,name,setName}) => {
                     onChangeText={(text) => setName(text)}
                 />
                 <View style={styles.buttons}>
-                    <Link href="/two" asChild>
+                    <Link href="/(tabs)/characters" asChild>
                         <ButtonThemed title="Back" />
                     </Link>
                       

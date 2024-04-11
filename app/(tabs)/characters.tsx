@@ -6,34 +6,22 @@ import { useEffect, useState } from 'react';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { Link } from 'expo-router';
+import Character from '@/constants/Character';
 const { width } = Dimensions.get('window');
 const cardWidth = Platform.OS!="web" ? (width - 20) / 2 - 10: (width - 20) / 4 - 10; 
-
-interface Character {
-  id: string;
-  name: string;
-  description: string;
-  avatar: string;
-  custom:Boolean;
-  prompt:string;
-  longDescription:string;
-}
 
 interface CardProps {
   character: Character;
 }
 
 const Card: React.FC<CardProps> = ({ character }) => {
-  
   return (
-    //@ts-ignore
-    
     <View style={styles.card}>
       <Image source={{ uri: character.avatar }} style={styles.image} />
       <View style={styles.details}>
         <Text style={styles.name}>{character.name}</Text>
         <Text style={styles.description}>{character.description}</Text>
-        <View style={{flex:1, flexDirection:'row',justifyContent:'space-around',marginVertical:10}}>
+        <View style={{flex:1, flexDirection:'row',justifyContent:'space-around',marginVertical:10,alignItems:'flex-end'}}>
           <Link href={{ pathname: "/conversation/[id]", params:{id:character.id} }} asChild>
             <ButtonThemed title="Chat" width='45%' onPress={() => console.log('Chat')}/>
           </Link>
@@ -43,7 +31,6 @@ const Card: React.FC<CardProps> = ({ character }) => {
         </View>   
       </View>     
     </View>
-    
   );
 };
 
@@ -113,11 +100,12 @@ export default function TabTwoScreen() {
             </View>
             </ScrollView>
           </SafeAreaView>
-        </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  
   containerLoading:{
     flex: 1,
     justifyContent: 'center',
@@ -129,6 +117,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     gap: 10,
     paddingHorizontal: 10,
+    flexGrow: 0,
   },
   horizontal: {
     flexDirection: 'row',
@@ -138,6 +127,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: cardWidth,
+    height: "auto",
     borderRadius: 10,
     
     marginBottom: 10,
@@ -170,5 +160,8 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     marginTop: 5,
+    flex: 1,
+    justifyContent:'space-around',
+    height: '100%',
   },
 });

@@ -4,13 +4,13 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
-import { useLocalSearchParams } from 'expo-router';
+
 import { useColorScheme } from '@/components/useColorScheme';
 import {User, onAuthStateChanged} from 'firebase/auth';
 import { Text,View } from '@/components/Themed';
 import AuthScreen from './AuthScreen';
-import { FIREBASE_AUTH,FIREBASE_AUTH_WEB } from '@/FirebaseConfig';
-import { Platform } from 'react-native';
+import { FIREBASE_AUTH } from '@/FirebaseConfig';
+
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -73,14 +73,15 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const params = useLocalSearchParams();
+  
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> 
         <Stack.Screen name="CharacterProfile" options={{ presentation: 'card', title:"Character" }} />
-        <Stack.Screen name="conversation/[id]" options={{ presentation: 'card', title: "Conversation" }} />
+        <Stack.Screen name="conversation/[id]" options={{ presentation: 'card', title:"" }} />
+        <Stack.Screen name="edit" options={{ presentation: 'card', title: "Edit Character"
+        }} />
       </Stack>
     </ThemeProvider>
   );

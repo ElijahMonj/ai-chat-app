@@ -55,7 +55,8 @@ const Create = () => {
           avatar: botAvatar,
           custom: true,
           description: description,
-          longDescription: '',
+          tone:tone,
+          backstory:backstory,
           name: name,
           owner: user?.uid,
           prompt: prompt,
@@ -124,7 +125,7 @@ const Create = () => {
                       <View style={styles.containerLoading}>
                           <Image source={{ uri: picture ? picture : 'https://reactnative.dev/img/tiny_logo.png' }}
                           style={styles.logo} />
-                          <Link href={{ pathname: "/conversation/[id]", params:{id:customBot.id}}} asChild>
+                          <Link replace href={{ pathname: "/conversation/[id]", params:{id:customBot.id}}} asChild>
                             <ButtonThemed title="Done" disabled={!customBot}/>
                           </Link>
                       </View>
