@@ -87,7 +87,7 @@ const AuthScreen = () => {
                 style={{width:"100%",height:100}}/>
            {isLogin ? 
                 <>
-                     <Text style={styles.title}>Sign-in</Text>
+                    <Text style={styles.title}>Sign-in</Text>
                         <TextInput
                             style={[styles.input,{color:inputTextColor}]}
                             placeholder="Email"
@@ -104,7 +104,7 @@ const AuthScreen = () => {
                             onChangeText={(text) => setPassword(text)}
                         />
                         {loading ? <ButtonThemed title="SIGN IN" disabled={true} width='100%'/> : <ButtonThemed width='100%' title="SIGN IN" onPress={signIn}/>}
-                        <Text>Don't have an account? <Text onPress={()=>setIsLogin(false)}style={styles.textToggle}>Sign-up</Text></Text>
+                    <Text>Don't have an account? <Text onPress={()=>setIsLogin(false)}style={styles.textToggle}>Sign-up</Text></Text>
                 </>
                 :
                 <>
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
       
     },
     textToggle:{
-        fontWeight: 'bold',
+        color:'green'
     },
     button: {
         padding: 10,

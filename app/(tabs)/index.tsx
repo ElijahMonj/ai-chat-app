@@ -28,11 +28,15 @@ const TabOneScreen = () => {
       next: (snapShot) => { 
         const cIds: any[] = [];
         snapShot.docs.forEach((doc)=>{
-          cIds.push({
-            id:doc.id,
-            lastMessageText:doc.data().messages[doc.data().messages.length-1].text,
-            lastMessageTime:doc.data().messages[doc.data().messages.length-1].createdAt
-          })
+          if(doc.data().messages.length==0){
+            cIds.push({id:doc.id})
+          }else{
+            cIds.push({
+              id:doc.id,
+              lastMessageText:doc.data().messages[doc.data().messages.length-1].text,
+              lastMessageTime:doc.data().messages[doc.data().messages.length-1].createdAt
+            })
+          }    
         });
         setConversationData(cIds);
         

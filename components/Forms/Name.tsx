@@ -1,6 +1,7 @@
 import React from 'react';
-import { View,Text, ButtonThemed } from '@/components/Themed';
-import { Button, TextInput,StyleSheet, Pressable, Animated } from 'react-native';
+import { View, ButtonThemed } from '@/components/Themed';
+import { TextInput,StyleSheet} from 'react-native';
+import {useColorScheme} from '@/components/useColorScheme';
 import { Link } from 'expo-router';
 interface NameProps {
     nextStep: () => void;
@@ -10,12 +11,13 @@ interface NameProps {
 
 const Name: React.FC<NameProps> = ({nextStep,name,setName}) => {
     // Implement your component logic here
-
+    const theme = useColorScheme() ?? 'light';
+    const inputTextColor= theme === 'light' ? '#000' : '#fff';
     return (
         
             <View style={styles.container}>
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input,{color:inputTextColor}]}
                     placeholder="Enter Character's name"
                     value={name}
                     placeholderTextColor="#A6A7AF"

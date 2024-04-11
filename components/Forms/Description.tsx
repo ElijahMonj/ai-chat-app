@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View,Text, ButtonThemed } from '@/components/Themed';
 import { Button,StyleSheet, TextInput } from 'react-native';
+import {useColorScheme} from '@/components/useColorScheme';
 interface DescriptionProps {
     nextStep: () => void;
     prevStep: () => void;
@@ -11,7 +12,8 @@ interface DescriptionProps {
 
 const Description: React.FC<DescriptionProps> = ({nextStep,prevStep,setDescription,description}) => {
     // Implement your component logic here
-    
+    const theme = useColorScheme() ?? 'light';
+    const inputTextColor= theme === 'light' ? '#000' : '#fff';
     return ( 
         <View style={styles.container}>
             <View style={{width:'100%'}}>
@@ -25,7 +27,7 @@ const Description: React.FC<DescriptionProps> = ({nextStep,prevStep,setDescripti
                         maxLength={250}
                         onChangeText={text => setDescription(text)}
                         value={description}
-                        style={styles.input}
+                        style={[styles.input,{color:inputTextColor}]}
                     />
             </View>
                 

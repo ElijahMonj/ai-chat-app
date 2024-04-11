@@ -21,22 +21,29 @@ interface Character {
 
 interface CardProps {
   character: Character;
-  onPress: () => void;
 }
 
-const Card: React.FC<CardProps> = ({ character, onPress }) => {
+const Card: React.FC<CardProps> = ({ character }) => {
   
   return (
     //@ts-ignore
-    <Link href={{ pathname: "/conversation/[id]", params:{id:character.id} }} asChild>
-    <Pressable onPress={onPress} style={styles.card}>
+    
+    <View style={styles.card}>
       <Image source={{ uri: character.avatar }} style={styles.image} />
       <View style={styles.details}>
         <Text style={styles.name}>{character.name}</Text>
-      </View>
-      
-    </Pressable>
-    </Link>
+        <Text style={styles.description}>{character.description}</Text>
+        <View style={{flex:1, flexDirection:'row',justifyContent:'space-around',marginVertical:10}}>
+          <Link href={{ pathname: "/conversation/[id]", params:{id:character.id} }} asChild>
+            <ButtonThemed title="Chat" width='45%' onPress={() => console.log('Chat')}/>
+          </Link>
+          <Link href={{ pathname: "/edit", params:{id:character.id} }} asChild>
+            <ButtonThemed title="Edit" width='45%' onPress={() => console.log('Edit')}/>
+          </Link>
+        </View>   
+      </View>     
+    </View>
+    
   );
 };
 
@@ -84,7 +91,7 @@ export default function TabTwoScreen() {
                     {customCharacters.length > 0 ? 
                     <>
                     {customCharacters.map(character => (
-                      <Card key={character.id} character={character} onPress={() => console.log(character)} />
+                      <Card key={character.id} character={character} />
                     ))}   
                     </>  
                     : 
@@ -132,7 +139,7 @@ const styles = StyleSheet.create({
   card: {
     width: cardWidth,
     borderRadius: 10,
-    backgroundColor: '#fff',
+    
     marginBottom: 10,
     elevation: 5,
     marginTop: 10,

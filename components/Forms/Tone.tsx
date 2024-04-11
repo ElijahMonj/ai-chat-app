@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { View,Text, ButtonThemed } from '@/components/Themed';
-import { Button,StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
+import {useColorScheme} from '@/components/useColorScheme';
 interface ToneProps {
     nextStep: () => void;
     prevStep: () => void;
@@ -11,7 +12,8 @@ interface ToneProps {
 
 const Tone: React.FC<ToneProps> = ({nextStep,prevStep,tone,setTone}) => {
     // Implement your component logic here
-    
+    const theme = useColorScheme() ?? 'light';
+    const inputTextColor= theme === 'light' ? '#000' : '#fff';
     return (
         <View style={styles.container}>
             <View style={{width:'100%'}}>
@@ -25,7 +27,7 @@ const Tone: React.FC<ToneProps> = ({nextStep,prevStep,tone,setTone}) => {
                         maxLength={250}
                         onChangeText={text => setTone(text)}
                         value={tone}
-                        style={styles.input}
+                        style={[styles.input,{color:inputTextColor}]}
                     />
             </View>
                 <View style={styles.buttons}>

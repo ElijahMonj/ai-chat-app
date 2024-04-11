@@ -36,7 +36,7 @@ const ConversationBox =({conversation}:ConversationBoxProps) => {
             <View style={styles.textContainer}>
                 <Text style={styles.name}>{botData ? botData.name : '...' }</Text>
                 <Text numberOfLines={1}>{!conversation.lastMessageText ? 
-                <Text style={{fontWeight:'100'}}>Start a conversation {botData ? `with ${botData.name}` : '...' } </Text>
+                <Text style={{fontWeight:'600'}}>Start a conversation {botData ? `with ${botData.name}` : '...' } </Text>
                 : conversation.lastMessageText}</Text>
             </View>
         </Pressable>
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     container: {
       flexDirection: 'row',
       alignItems: 'center',
-      borderBottomWidth: 1,
+      borderBottomWidth: 0.5,
       borderBottomColor: '#ccc',
       paddingVertical: 10,
     },

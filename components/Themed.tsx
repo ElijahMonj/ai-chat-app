@@ -46,7 +46,7 @@ export function View(props: ViewProps) {
 }
 
 export const ButtonThemed = forwardRef(function ButtonThemed(props:any,ref) {
-  const { title, onPress,disabled,width } = props;
+  const { title, onPress,disabled,width,color } = props;
   const animated = new Animated.Value(1);
   const fadeIn = () => {
     Animated.timing(animated, {
@@ -67,7 +67,7 @@ export const ButtonThemed = forwardRef(function ButtonThemed(props:any,ref) {
     <Pressable onPressIn={fadeIn} onPressOut={fadeOut} onPress={onPress} disabled={disabled} style={{width:width}}>
         <Animated.View
           style={{ 
-            backgroundColor: !disabled ? '#28bc64' : '#7ecc9e', 
+            backgroundColor: !disabled ? color ? color : '#28bc64' : '#7ecc9e', 
             opacity: animated,
             padding: 10,
             justifyContent: 'center',

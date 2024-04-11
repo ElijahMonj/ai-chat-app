@@ -54,7 +54,7 @@ const Create = () => {
         const customBot = await addDoc(collection(FIREBASE_DB, 'bots'),{
           avatar: botAvatar,
           custom: true,
-          description: '',
+          description: description,
           longDescription: '',
           name: name,
           owner: user?.uid,
@@ -124,7 +124,7 @@ const Create = () => {
                       <View style={styles.containerLoading}>
                           <Image source={{ uri: picture ? picture : 'https://reactnative.dev/img/tiny_logo.png' }}
                           style={styles.logo} />
-                          <Link href={{ pathname: "/conversation/[id]", params: customBot.id}} asChild>
+                          <Link href={{ pathname: "/conversation/[id]", params:{id:customBot.id}}} asChild>
                             <ButtonThemed title="Done" disabled={!customBot}/>
                           </Link>
                       </View>

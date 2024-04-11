@@ -7,11 +7,12 @@ import axios from 'axios';
 import {useColorScheme} from '@/components/useColorScheme';
 import { Platform, View,Image } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-
+import { Text } from '@/components/Themed';
 const Conversation = () => {
   const user = FIREBASE_AUTH.currentUser;
   const params = useLocalSearchParams();
   const [bot, setBot] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [messages, setMessages] = useState<IMessage[]>([])
   const docRef = doc(FIREBASE_DB, 'users', user?.uid as string, 'conversations', params.id as string);
   const theme = useColorScheme() ?? 'light';
@@ -52,7 +53,7 @@ const Conversation = () => {
       msgs = docSnap.data().messages.sort((a: { createdAt: number; }, b: { createdAt: number; }) => a.createdAt - b.createdAt);
       msgs.reverse();
     } else {
-      console.log("No such document!");
+      console.log("New conversation, creating document...");
         setDoc(doc(FIREBASE_DB, "users", user?.uid as string,"conversations",params.id as string), 
           { 
             messages: arrayUnion(
@@ -68,6 +69,7 @@ const Conversation = () => {
     }
     
     setMessages(msgs);
+    setIsLoading(false);
   };
   fetchData();
   }, [])
@@ -151,9 +153,25 @@ const Conversation = () => {
       />
     );
   };
+  const CustomChatEmpty = () => {
+
+    const fixInverted = Platform.OS === 'web' ?  [{ scaleY: -1 }] : [{scaleY: -1}, {scaleX: -1}];
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', transform:fixInverted }}>
+        {isLoading ? <Text style={{fontSize:20,fontWeight:'200'}}>Loading messages...</Text> : 
+        <Text style={{fontSize:20,fontWeight:'200'}}>Start a conversation
+        {bot ? ` with ${bot.name}` : ''}
+        </Text>}
+        
+      </View>
+    );
+  };
+
     return (
         <GiftedChat
         
+        renderUsernameOnMessage={true}
+        renderChatEmpty={() => <CustomChatEmpty />}
           messages={messages}
           textInputStyle = {{color: theme === 'dark' ? '#fff' : '#000'}}
           onSend={messages => onSend(messages)}
@@ -181,7 +199,7 @@ const Conversation = () => {
               }}
             >
               
-              <Ionicons name="send" size={30} color="#28bc64" />
+              <Ionicons name="send" size={25} color="#28bc64" />
             </Send> )}
         />
     )
