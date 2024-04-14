@@ -1,14 +1,17 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { GiftedChat, IMessage,InputToolbar, Actions, SystemMessage, Send } from 'react-native-gifted-chat'
-import {addDoc, arrayUnion, collection, doc, setDoc, query, where, onSnapshot, getDoc} from 'firebase/firestore'
+import {addDoc, arrayUnion, collection, doc, setDoc, query, where, onSnapshot, getDoc, deleteDoc} from 'firebase/firestore'
 import {FIREBASE_AUTH, FIREBASE_DB} from '@/FirebaseConfig' 
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 import {useColorScheme} from '@/components/useColorScheme';
-import { Platform, View,Image } from 'react-native';
+import { Platform, View,Image, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Text } from '@/components/Themed';
 import { useNavigation } from '@react-navigation/native'
+import ModalAlert from '@/components/ModalAlert';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Colors from '@/constants/Colors';
 const Conversation = () => {
   const nav = useNavigation();
   const user = FIREBASE_AUTH.currentUser;
@@ -18,27 +21,7 @@ const Conversation = () => {
   const [messages, setMessages] = useState<IMessage[]>([])
   const docRef = doc(FIREBASE_DB, 'users', user?.uid as string, 'conversations', params.id as string);
   const theme = useColorScheme() ?? 'light';
-  useEffect(() => {
-    const fetchData = async () => {
-      const docSnap = await getDoc(doc(FIREBASE_DB, 'bots',params.id as string));
-      
-      if (docSnap.exists()) {
-       
-        setBot({
-          id: docSnap.id,
-          ...docSnap.data()
-        
-        });
-        nav.setOptions({
-          title:docSnap.data().name,
-        });
-      } else {
-        console.log("No such document!");
-      }
-     
-    };
-    fetchData();  
-  }, [])
+  const [modalVisible, setModalVisible] = useState(false);
   useEffect(() => {
  
   if (Platform.OS === 'web') {
@@ -52,11 +35,54 @@ const Conversation = () => {
   }
 
   const fetchData = async () => {
+    const botSnap = await getDoc(doc(FIREBASE_DB, 'bots',params.id as string));
+      if (botSnap.exists()) {
+
+        setBot({
+          id: botSnap.id,
+          ...botSnap.data()
+        
+        });
+        nav.setOptions({
+          title:botSnap.data().name,
+          headerRight: () => (
+            <Pressable onPress={() => {setModalVisible(true);}}>
+              {({ pressed }) => (
+                <MaterialCommunityIcons
+                  name="delete-outline"
+                  size={25}
+                  color={Colors[useColorScheme() ?? 'light'].text}
+                  style={{ marginRight: Platform.OS ==='web' ? 15 : 0, opacity: pressed ? 0.5 : 1 }}
+                />
+              )}
+            </Pressable>
+          ),
+        });
+      } else {
+        console.log("No such document!");
+      }
+
     const docSnap = await getDoc(docRef);
     let msgs;
     if (docSnap.exists()) {
       msgs = docSnap.data().messages.sort((a: { createdAt: number; }, b: { createdAt: number; }) => a.createdAt - b.createdAt);
       msgs.reverse();
+      const updatedMessages = msgs.map((msg:any) => {
+            
+        if (msg.user._id !== user?.uid as string) {
+          return {
+            _id: msg._id,
+            createdAt: msg.createdAt,
+            text: msg.text,
+            user: { 
+              _id: msg._id, name: botSnap.data()?.name, avatar: botSnap.data()?.avatar 
+            },
+          };
+        } else {
+          return msg; 
+        }
+      });
+      setMessages(updatedMessages);
     } else {
       console.log("New conversation, creating document...");
         setDoc(doc(FIREBASE_DB, "users", user?.uid as string,"conversations",params.id as string), 
@@ -69,15 +95,62 @@ const Conversation = () => {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           msgs = docSnap.data().messages.sort((a: { createdAt: number; }, b: { createdAt: number; }) => a.createdAt - b.createdAt);
-          msgs.reverse();
+          msgs.reverse(); 
         }
-    }
-    
-    setMessages(msgs);
+    } 
     setIsLoading(false);
   };
+
+
+
+
+
+
+
   fetchData();
   }, [])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   useEffect(() => {
     if(messages.length>0 && messages[0].user._id===user?.uid){
       messageBot();
@@ -101,23 +174,36 @@ const Conversation = () => {
     });
     
     const botReply = await getReply.data.response;
-    
+    const botReplyObj = {
+      _id: botReply._id,
+      createdAt: botReply.createdAt,
+      text: botReply.text,
+      user:{
+        _id: botReply.user._id,
+      }
+    }
+    console.log(botReplyObj)
+
     setDoc(doc(FIREBASE_DB, "users", user?.uid as string,"conversations",params.id as string), 
     { 
       messages: arrayUnion(
         ...[ 
-        botReply
+          botReplyObj
         ]
       ),
     },{ merge: true }
     );
+
+
     setMessages(previousMessages =>
       GiftedChat.append(previousMessages, [botReply as IMessage]),
     )
   }
+
+
   const onSend = useCallback((m: IMessage[] = []) => {
       
-    const msg : IMessage = {
+    const msg  = {
       _id: m[0]._id,
       createdAt: Date.now(),
       text: m[0].text,
@@ -171,29 +257,41 @@ const Conversation = () => {
       </View>
     );
   };
-
+  async function deleteBot(){
+    const conversationRef = doc(FIREBASE_DB, `users/${user?.uid}/conversations/${params.id}`);
+    deleteDoc(conversationRef);
+    setModalVisible(false)
+    router.replace('/');
+  }
     return (
-        <GiftedChat
-        
-        renderUsernameOnMessage={true}
-        renderChatEmpty={() => <CustomChatEmpty />}
-          messages={messages}
-          textInputStyle = {{color: theme === 'dark' ? '#fff' : '#000'}}
-          onSend={messages => onSend(messages)}
-          user={{
-            //@ts-ignore
-            _id: user?.uid,
-          }}
-          wrapperStyle={{
-            right: {
-              backgroundColor: "#28bc64"
-            },
-            left:{
-              backgroundColor: "#ebf7f0",
-            }
-          }}
-          renderInputToolbar={props => customtInputToolbar(props)}
-          renderSend={(props) => (
+      <>
+      <ModalAlert 
+      modalVisible={modalVisible} 
+      setModalVisible={setModalVisible} 
+      onPress={deleteBot}
+      title="Conversation?"
+      message="Are you sure you want to delete this conversation?"
+      />
+          <GiftedChat
+          renderUsernameOnMessage={true}
+          renderChatEmpty={() => <CustomChatEmpty />}
+            messages={messages}
+            textInputStyle = {{color: theme === 'dark' ? '#fff' : '#000'}}
+            onSend={messages => onSend(messages)}
+            user={{
+              //@ts-ignore
+              _id: user?.uid,
+            }}
+            wrapperStyle={{
+              right: {
+                backgroundColor: "#28bc64"
+              },
+              left:{
+                backgroundColor: "#ebf7f0",
+              }
+            }}
+            renderInputToolbar={props => customtInputToolbar(props)}
+            renderSend={(props) => (
             <Send
               {...props}
               containerStyle={{
@@ -203,10 +301,11 @@ const Conversation = () => {
                 alignItems: 'center',
               }}
             >
-              
               <Ionicons name="send" size={25} color="#28bc64" />
             </Send> )}
         />
+      </>
+        
     )
 }
  

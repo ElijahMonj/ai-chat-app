@@ -1,11 +1,11 @@
 import { View,Text,ButtonThemed } from "@/components/Themed";
 import { useLocalSearchParams } from "expo-router";
 import {useColorScheme} from '@/components/useColorScheme';
-import { Platform, StyleSheet,Image, ActivityIndicator, TextInput, ScrollView, Pressable, ImageBackground } from 'react-native';
+import { Platform, StyleSheet,Image, ActivityIndicator, TextInput, ScrollView, Pressable, ImageBackground, Modal, Alert } from 'react-native';
 import { Formik } from 'formik';
 import { Link,router } from "expo-router";
 import { useEffect, useState } from "react";
-import { collection, doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { FIREBASE_AUTH, FIREBASE_DB } from "@/FirebaseConfig";
 import { useNavigation } from '@react-navigation/native'
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -14,6 +14,7 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from "axios";
 import { v4 as uuidv4 } from 'uuid';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import ModalAlert from "@/components/ModalAlert";
 const Edit = () => {
     const collectionRef=collection(FIREBASE_DB, 'bots');
     const user = FIREBASE_AUTH.currentUser;
@@ -24,10 +25,11 @@ const Edit = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [displayImage, setDisplayImage] = useState<string | null>(null);
     const [character,setCharacter] = useState<any|null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
     useEffect(() => {
       nav.setOptions({
         headerRight: () => (
-          <Pressable onPress={() => {console.log("Delete")}}>
+          <Pressable onPress={() => {setModalVisible(true);}}>
             {({ pressed }) => (
               <MaterialCommunityIcons
                 name="delete-outline"
@@ -41,13 +43,11 @@ const Edit = () => {
       });
     }, []);
     useEffect(() => {
-      
+
       const subscriber = onSnapshot(collectionRef, {
         next: (snapShot) => { 
           snapShot.docs.forEach((doc)=>{
-            
             if(doc.id==params.id){
-              
               if(doc.data().custom && doc.data().owner==user?.uid){
                 setCharacter({
                   id: doc.id,
@@ -57,7 +57,6 @@ const Edit = () => {
               }else{
                 router.replace('/characters');
               }
-                
             }  
           });
         }
@@ -79,54 +78,68 @@ const Edit = () => {
   
 
     async function submit(values:any){
-      setIsLoading(true);
-      let avatar = values.avatar;
-      if(avatar !== displayImage){
-        console.log('uploading new avatar')
+      if((values.avatar === displayImage) && (values.name === character.name) && (values.description === character.description) && (values.tone === character.tone) && (values.backstory === character.backstory)){
+        console.log('no changes')
+      }else if((values.avatar !== displayImage) && (values.name === character.name) && (values.description === character.description) && (values.tone === character.tone) && (values.backstory === character.backstory)){
+        setIsLoading(true);
         const botAvatar = await uploadImage(displayImage as string);
-        avatar = botAvatar;
-        const desertRef = ref(getStorage(), values.avatar);
-
-          deleteObject(desertRef).then(() => {
-            console.log('deleted old avatar')
-          }).catch((error) => {
-            console.log(error)
-          });
-      }
-      
-      const token = await user?.getIdToken().then((token) => {return token});
-
-      const getPrompt = await axios.post(`https://ai-chat-api-vercel.vercel.app/prompt`, {
-          name:values.name,
-          description:values.description,
-          backstory:values.backstory,
-          tone:values.tone
-        }
-        ,{
-          headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-          }
+        const desertRef = ref(getStorage(), character.avatar);
+        const botDoc = doc(FIREBASE_DB, `bots/${params.id as string}`);
+        updateDoc(botDoc, {avatar: botAvatar});
+        deleteObject(desertRef).then(() => {
+          console.log('deleted old avatar')
+        }).catch((error) => {
+          console.log(error)
         });
-        const prompt = await getPrompt.data.prompt;
-        setDoc(doc(FIREBASE_DB, "bots", params.id as string),{
-          avatar: avatar,
-          custom: true,
-          description: values.description,
-          tone:values.tone,
-          backstory:values.backstory,
-          name: values.name,
-          owner: user?.uid,
-          prompt: prompt,
-        })
-
-        const customBotDoc = await getDoc(doc(collectionRef, params.id as string));
-        const customBotData = {
-          id: customBotDoc.id,
-          ...customBotDoc.data()
-        }
-        setCharacter(customBotData);
-        setIsLoading(false);
+        
+      }else{
+        
+        setIsLoading(true);
+        let avatar = values.avatar;
+        if(avatar !== displayImage){
+          console.log('uploading new avatar')
+          const botAvatar = await uploadImage(displayImage as string);
+          avatar = botAvatar;
+          const desertRef = ref(getStorage(), character.avatar);
+            deleteObject(desertRef).then(() => {
+              console.log('deleted old avatar')
+            }).catch((error) => {
+              console.log(error)
+            });
+        } 
+        const token = await user?.getIdToken().then((token) => {return token});
+        const getPrompt = await axios.post(`https://ai-chat-api-vercel.vercel.app/prompt`, {
+            name:values.name,
+            description:values.description,
+            backstory:values.backstory,
+            tone:values.tone
+          }
+          ,{
+            headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+            }
+          });
+          const prompt = await getPrompt.data.prompt;
+          setDoc(doc(FIREBASE_DB, "bots", params.id as string),{
+            avatar: avatar,
+            custom: true,
+            description: values.description,
+            tone:values.tone,
+            backstory:values.backstory,
+            name: values.name,
+            owner: user?.uid,
+            prompt: prompt,
+          })
+      }
+      const customBotDoc = await getDoc(doc(collectionRef, params.id as string));
+          const customBotData = {
+            id: customBotDoc.id,
+            ...customBotDoc.data()
+          }
+         
+          setCharacter(customBotData);
+          setIsLoading(false);
     }
 
   const uploadImage = async (picture:string) => {
@@ -157,10 +170,24 @@ const Edit = () => {
       
       return await getDownloadURL(fileRef);
   }
+  async function deleteBot(){
+    const botRef = doc(FIREBASE_DB, `bots/${params.id}`);
+    const conversationRef = doc(FIREBASE_DB, `users/${user?.uid}/conversations/${params.id}`);
+    deleteDoc(botRef);
+    deleteDoc(conversationRef);
+    setModalVisible(false)
+    router.replace('/characters');
+  }
     return ( 
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.container}>
-          
+          <ModalAlert 
+          modalVisible={modalVisible} 
+          setModalVisible={setModalVisible} 
+          onPress={deleteBot}
+          title="Delete Character"
+          message="Are you sure you want to delete this character?"
+          />
             {!character ?
             <View style={[styles.containerLoading, styles.horizontal]}>
                 <ActivityIndicator size="large" color="#28bc64"/>
@@ -255,7 +282,7 @@ const Edit = () => {
                         />
                     </View>
                     
-                    <ButtonThemed onPress={handleSubmit} title="Submit" width="100%" disabled={isLoading}/>
+                    <ButtonThemed onPress={handleSubmit} title="Save Changes" width="100%" disabled={isLoading}/>
 
               </View>
             )}
@@ -316,7 +343,10 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         padding: 10,
         textAlignVertical: 'top'
-    }
+    },
+
+    
+
   });
   
 export default Edit;

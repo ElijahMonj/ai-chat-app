@@ -1,6 +1,4 @@
 import { ActivityIndicator, Dimensions, StyleSheet,Pressable,Image,SafeAreaView,ScrollView, Button, Platform, Alert } from 'react-native';
-
-import EditScreenInfo from '@/components/EditScreenInfo';
 import { ButtonThemed, Text, View } from '@/components/Themed';
 import { useEffect, useState } from 'react';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
@@ -58,7 +56,7 @@ export default function TabTwoScreen() {
         setCustomCharacters(cIds);
       }
     });
-    
+   
   },[])
   return (
     <View style={{flex:1}}>
@@ -88,7 +86,8 @@ export default function TabTwoScreen() {
                       flex:1,
                       marginVertical:'50%'
                       }}>   
-                      <Text style={{marginBottom:20}}>You have no custom characters, create one!</Text>
+                      <Text style={{fontSize:17,textAlign:'center'}}>You have no custom characters.</Text>
+                      <Text style={{marginBottom:20,fontSize:24,textAlign:'center',fontWeight:'bold'}}>Create one!</Text>
                       <Link href={'/create'} asChild>
                         <ButtonThemed title="Create Character"/>
                       </Link>      

@@ -29,6 +29,7 @@ const ConversationBox =({conversation}:ConversationBoxProps) => {
           });
         }
       });
+      
     }, []);
     return ( 
       <Link href={{ pathname: "/conversation/[id]", params:{id:conversation.id} }} asChild>
