@@ -79,7 +79,7 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> 
         <Stack.Screen name="CharacterProfile" options={{ presentation: 'card', title:"Character" }} />
-        <Stack.Screen name="conversation/[id]" options={{ presentation: 'card', title:"" }} />
+        <Stack.Screen name="conversation" options={{ presentation: 'modal', title:"" }} />
         <Stack.Screen name="edit" options={{ presentation: 'card', title: "Edit Character"
         }} />
       </Stack>

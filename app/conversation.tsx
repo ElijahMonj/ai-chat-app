@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useLayoutEffect } from 'react'
 import { GiftedChat, IMessage,InputToolbar, Actions, SystemMessage, Send } from 'react-native-gifted-chat'
 import {addDoc, arrayUnion, collection, doc, setDoc, query, where, onSnapshot, getDoc, deleteDoc} from 'firebase/firestore'
 import {FIREBASE_AUTH, FIREBASE_DB} from '@/FirebaseConfig' 
@@ -19,9 +19,22 @@ const Conversation = () => {
   const [bot, setBot] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [messages, setMessages] = useState<IMessage[]>([])
-  const docRef = doc(FIREBASE_DB, 'users', user?.uid as string, 'conversations', params.id as string);
+
   const theme = useColorScheme() ?? 'light';
   const [modalVisible, setModalVisible] = useState(false);
+
+  const messageStateRef = React.useRef(messages);
+  const setMessageState = (data: IMessage[]) => {
+    messageStateRef.current = data;
+    setMessages(data);
+  };
+
+  const botStateRef = React.useRef(bot);
+  const setBotState = (data: any) => {
+    botStateRef.current = data;
+    setBot(data);
+  };
+
   useEffect(() => {
  
   if (Platform.OS === 'web') {
@@ -33,176 +46,83 @@ const Conversation = () => {
       }, 500)
     }
   }
-
-  const fetchData = async () => {
-    const botSnap = await getDoc(doc(FIREBASE_DB, 'bots',params.id as string));
-      if (botSnap.exists()) {
-
-        setBot({
-          id: botSnap.id,
-          ...botSnap.data()
-        
-        });
-        nav.setOptions({
-          title:botSnap.data().name,
-          headerRight: () => (
-            <Pressable onPress={() => {setModalVisible(true);}}>
-              {({ pressed }) => (
-                <MaterialCommunityIcons
-                  name="delete-outline"
-                  size={25}
-                  color={Colors[useColorScheme() ?? 'light'].text}
-                  style={{ marginRight: Platform.OS ==='web' ? 15 : 0, opacity: pressed ? 0.5 : 1 }}
-                />
-              )}
-            </Pressable>
-          ),
-        });
-      } else {
-        console.log("No such document!");
-      }
-
-    const docSnap = await getDoc(docRef);
-    let msgs;
-    if (docSnap.exists()) {
-      msgs = docSnap.data().messages.sort((a: { createdAt: number; }, b: { createdAt: number; }) => a.createdAt - b.createdAt);
-      msgs.reverse();
-      const updatedMessages = msgs.map((msg:any) => {
-            
-        if (msg.user._id !== user?.uid as string) {
-          return {
-            _id: msg._id,
-            createdAt: msg.createdAt,
-            text: msg.text,
-            user: { 
-              _id: msg._id, name: botSnap.data()?.name, avatar: botSnap.data()?.avatar 
-            },
+  var unsub: () => void;
+  const conversationRef=collection(FIREBASE_DB, 'users', user?.uid as string,'conversations'); 
+  const unsubscriber = onSnapshot(collection(FIREBASE_DB, 'bots'), {
+    next: (snapShot) => { 
+      snapShot.docs.forEach((botDoc)=>{ 
+        if(botDoc.id==params.id){
+          console.log("Bot found!")
+          setBotState({
+            id: botDoc.id,
+            ...botDoc.data()    
+          });
+          
+          nav.setOptions({
+            title:botDoc.data().name,
+            headerRight: () => (
+              <Pressable onPress={() => {setModalVisible(true);}}>
+                {({ pressed }) => (
+                  <MaterialCommunityIcons
+                    name="delete-outline"
+                    size={25}
+                    color={Colors[useColorScheme() ?? 'light'].text}
+                    style={{ marginRight: Platform.OS ==='web' ? 15 : 0, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            ),
+          });
+          const subscriber = onSnapshot(conversationRef, {
+           
+            next: (snapShot) => { 
+              snapShot.docs.forEach((doc)=>{ 
+                if(doc.id==params.id){
+                  let msgs = doc.data().messages.sort((a: { createdAt: number; }, b: { createdAt: number; }) => a.createdAt - b.createdAt);
+                  msgs.reverse();
+                    //get messate data
+                  const updatedMessages = msgs.map((msg:any) => {
+              
+                    if (msg.user._id !== user?.uid as string) {
+                      return {
+                        _id: msg._id,
+                        createdAt: msg.createdAt,
+                        text: msg.text,
+                        user: { 
+                          _id: msg._id, name: botDoc.data()?.name, avatar: botDoc.data()?.avatar 
+                        },
+                      };
+                    } else {
+                      return msg; 
+                    }
+                  });
+                  //put avatar and name to bot messages
+                  console.log(updatedMessages[0].text)
+                  setMessageState(updatedMessages);
+                  
+                }  
+              });
+              setIsLoading(false);
+            }
+          });
+          unsub = () => {
+            console.log('unsubscribing from conversation');
+            subscriber();
           };
-        } else {
-          return msg; 
         }
       });
-      setMessages(updatedMessages);
-    } else {
-      console.log("New conversation, creating document...");
-        setDoc(doc(FIREBASE_DB, "users", user?.uid as string,"conversations",params.id as string), 
-          { 
-            messages: arrayUnion(
-              ...[]
-            ),
-          },{ merge: true }
-        );
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          msgs = docSnap.data().messages.sort((a: { createdAt: number; }, b: { createdAt: number; }) => a.createdAt - b.createdAt);
-          msgs.reverse(); 
-        }
-    } 
-    setIsLoading(false);
-  };
-
-
-
-
-
-
-
-  fetchData();
-  }, [])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  useEffect(() => {
-    if(messages.length>0 && messages[0].user._id===user?.uid){
-      messageBot();
     }
-  }, [messages]);
-  async function messageBot(){
-    
-    let token = await user?.getIdToken().then((token) => {return token});
-    
-    let history = messages.map((message) => [message.user._id === user?.uid ? 'user' : 'assistant', message.text]);
-    
-    const getReply = await axios.post(`https://ai-chat-api-vercel.vercel.app/chat`, {
-      history,
-      params:bot
-    }
-    ,{
-      headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-      }
-    });
-    
-    const botReply = await getReply.data.response;
-    const botReplyObj = {
-      _id: botReply._id,
-      createdAt: botReply.createdAt,
-      text: botReply.text,
-      user:{
-        _id: botReply.user._id,
-      }
-    }
-    console.log(botReplyObj)
-
-    setDoc(doc(FIREBASE_DB, "users", user?.uid as string,"conversations",params.id as string), 
-    { 
-      messages: arrayUnion(
-        ...[ 
-          botReplyObj
-        ]
-      ),
-    },{ merge: true }
-    );
-
-
-    setMessages(previousMessages =>
-      GiftedChat.append(previousMessages, [botReply as IMessage]),
-    )
+  });
+  
+  return () => {
+    unsub();
+    console.log('unsubscribing from bot');
+    unsubscriber();
   }
 
+  }, [])
 
-  const onSend = useCallback((m: IMessage[] = []) => {
-      
+  const onSend = useCallback(async(m: IMessage[] = []) => {
     const msg  = {
       _id: m[0]._id,
       createdAt: Date.now(),
@@ -213,21 +133,44 @@ const Conversation = () => {
         avatar: '' 
       }
     }
-
-    setDoc(doc(FIREBASE_DB, "users", user?.uid as string,"conversations",params.id as string), 
-        { 
-          messages: arrayUnion(
-            ...[   // <=== Note the spread operator
-            msg
-            ]
-          ),
-        },{ merge: true }
-    );
-
     setMessages(previousMessages =>
       GiftedChat.append(previousMessages, [msg]),
-    )      
- 
+    ) 
+    let token = await user?.getIdToken().then((token) => {return token}); 
+    let prevMessages = [msg,...messageStateRef.current];
+    let history = prevMessages.map((message) => [message.user._id === user?.uid ? 'user' : 'assistant', message.text]);
+    
+    const getReply = await axios.post(`https://ai-chat-api-vercel.vercel.app/chat`, {
+      history,
+      params:botStateRef.current
+    }
+    ,{
+      headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+      }
+    });
+    const botReply = await getReply.data.response;
+    
+    const botReplyObj = {
+      _id: botReply._id,
+      createdAt: botReply.createdAt,
+      text: botReply.text,
+      user:{
+        _id: botReply.user._id,
+      }
+    }
+    
+    setDoc(doc(FIREBASE_DB, "users", user?.uid as string,"conversations",params.id as string), 
+    { 
+      messages: arrayUnion(
+        ...[
+          msg, 
+          botReplyObj
+        ]
+      ),
+    },{ merge: true }
+    );
   }, [])
 
   const customtInputToolbar = (props:any) => {

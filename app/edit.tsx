@@ -61,7 +61,7 @@ const Edit = () => {
           });
         }
       });
-     
+     return () => subscriber();
       }, []);
     const pickImage = async () => {
       // No permissions request is necessary for launching the image library
@@ -175,6 +175,13 @@ const Edit = () => {
     const conversationRef = doc(FIREBASE_DB, `users/${user?.uid}/conversations/${params.id}`);
     deleteDoc(botRef);
     deleteDoc(conversationRef);
+    const desertRef = ref(getStorage(), character.avatar);
+    deleteObject(desertRef).then(() => {
+      console.log('deleted avatar')
+    }).catch((error) => {
+      console.log(error)
+    });
+
     setModalVisible(false)
     router.replace('/characters');
   }

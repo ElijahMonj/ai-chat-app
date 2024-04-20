@@ -41,6 +41,7 @@ const TabOneScreen = () => {
         setConversationData(cIds);
       }
     });
+    return () => subscriber();
     //get conversation ids
     
   },[])

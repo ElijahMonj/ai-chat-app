@@ -125,7 +125,7 @@ const Create = () => {
                       <View style={styles.containerLoading}>
                           <Image source={{ uri: picture ? picture : 'https://reactnative.dev/img/tiny_logo.png' }}
                           style={styles.logo} />
-                          <Link replace href={{ pathname: "/conversation/[id]", params:{id:customBot.id}}} asChild>
+                          <Link replace href={{ pathname: "/conversation", params:{id:customBot.id}}} asChild>
                             <ButtonThemed title="Done" disabled={!customBot}/>
                           </Link>
                       </View>

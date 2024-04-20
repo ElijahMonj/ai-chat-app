@@ -5,8 +5,8 @@ import { FIREBASE_AUTH, FIREBASE_DB } from '@/FirebaseConfig';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { Link } from 'expo-router';
 import Character from '@/constants/Character';
-const { width } = Dimensions.get('window');
-const cardWidth = Platform.OS!="web" ? (width - 20) / 2 - 10: (width - 20) / 4 - 10; 
+const { width,height } = Dimensions.get('window');
+const cardWidth = width<height ? (width - 20) / 2 - 10: (width - 20) / 4 - 10; 
 
 interface CardProps {
   character: Character;
@@ -20,7 +20,7 @@ const Card: React.FC<CardProps> = ({ character }) => {
         <Text style={styles.name}>{character.name}</Text>
         <Text style={styles.description}>{character.description}</Text>
         <View style={{flex:1, flexDirection:'row',justifyContent:'space-around',marginVertical:10,alignItems:'flex-end'}}>
-          <Link href={{ pathname: "/conversation/[id]", params:{id:character.id} }} asChild>
+          <Link href={{ pathname: "/conversation", params:{id:character.id}}} asChild>
             <ButtonThemed title="Chat" width='45%' onPress={() => console.log('Chat')}/>
           </Link>
           <Link href={{ pathname: "/edit", params:{id:character.id} }} asChild>
@@ -56,7 +56,7 @@ export default function TabTwoScreen() {
         setCustomCharacters(cIds);
       }
     });
-   
+   return () => subscriber();
   },[])
   return (
     <View style={{flex:1}}>
@@ -84,7 +84,7 @@ export default function TabTwoScreen() {
                       justifyContent:'center',
                       alignItems:'center',
                       flex:1,
-                      marginVertical:'50%'
+                      marginVertical:'10%'
                       }}>   
                       <Text style={{fontSize:17,textAlign:'center'}}>You have no custom characters.</Text>
                       <Text style={{marginBottom:20,fontSize:24,textAlign:'center',fontWeight:'bold'}}>Create one!</Text>

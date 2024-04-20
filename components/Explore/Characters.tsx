@@ -51,6 +51,7 @@ const Characters: React.FC = () => {
         setCharacters(cIds);
       }
     });
+    return () => subscriber();
   },[])
 
   return (

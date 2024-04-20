@@ -29,10 +29,10 @@ const ConversationBox =({conversation}:ConversationBoxProps) => {
           });
         }
       });
-      
+      return () => subscriber();
     }, []);
     return ( 
-      <Link href={{ pathname: "/conversation/[id]", params:{id:conversation.id} }} asChild>
+      <Link href={{ pathname: "/conversation", params:{id:conversation.id} }} asChild>
         <Pressable style={styles.container} onPress={()=>{
         }}>
             <Image source={{ uri: botData ? botData.avatar:'https://firebasestorage.googleapis.com/v0/b/test-auth-417304.appspot.com/o/assets%2Fplaceholder.png?alt=media&token=cf3dfee7-4046-412b-9d64-eb1db80b3e44' }} style={styles.image} />
