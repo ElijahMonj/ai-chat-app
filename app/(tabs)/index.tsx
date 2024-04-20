@@ -8,6 +8,7 @@ import {
     ActivityIndicator,
     Platform,
   } from 'react-native';
+import Head from 'expo-router/head';
 import { useColorScheme } from '@/components/useColorScheme'
 import ConversationBox from '@/components/Chats/ConversationBox';
 import EmptyConversation from '@/components/Chats/EmptyConversation';
@@ -49,6 +50,9 @@ const TabOneScreen = () => {
   
     return ( 
       <>
+      <Head>
+        <title>IntelliPal</title>
+      </Head>
         {!conversationData ? 
         
         <View style={[styles.container, styles.horizontal]}>

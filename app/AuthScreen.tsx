@@ -6,6 +6,7 @@ import { FIREBASE_AUTH,FIREBASE_DB,FIREBASE_AUTH_WEB } from '@/FirebaseConfig';
 import { Button, Platform, TextInput,StyleSheet,Alert,Image, Pressable, Animated } from 'react-native';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
+import Head from 'expo-router/head';
 
 
 const AuthScreen = () => {
@@ -81,6 +82,10 @@ const AuthScreen = () => {
 
 
     return ( 
+        <>
+        <Head>
+        <title>IntelliPal</title>
+        </Head>
         <View style={styles.container}>
            <View style={styles.authCard}>
            <Image source={require('@/assets/images/logo.png')}
@@ -145,6 +150,8 @@ const AuthScreen = () => {
             }
            </View>
         </View>
+        </>
+        
      );
 }
 
