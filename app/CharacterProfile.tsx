@@ -5,30 +5,33 @@ import { ButtonThemed, Text, View } from '@/components/Themed';
 import { Link } from "expo-router";
 import { useNavigation } from '@react-navigation/native'
 import { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { FIREBASE_DB } from '@/FirebaseConfig';
 
 export default function CharacterProfile() {
   const params = useLocalSearchParams();
   const [character,setCharacter] = useState<any|null>(null);
   const nav = useNavigation();
+  const collectionRef=collection(FIREBASE_DB, 'bots');
   useEffect(() => {
-    const fetchData = async () => {
-      const docSnap = await getDoc(doc(FIREBASE_DB, 'bots',params.id as string));
-      if (docSnap.exists()) {
-        if(docSnap.data().custom){
-          router.replace('/explore');
-        }else{
-            setCharacter(docSnap.data());
+    const subscriber = onSnapshot(collectionRef, {
+      next: (snapShot) => {
+        const doc = snapShot.docs.find((doc)=>doc.id==params.id)?.data(); 
+        if(doc){
+          if(!doc.custom){
+            setCharacter(doc);
             nav.setOptions({
-              title: docSnap.data().name,
+              title: doc.name,
             });
+          }else{
+            router.replace('/explore');
+          }
+        }else{
+          router.replace('/explore');
         }
-      } else {
-        console.log("No such document!");
       }
-    };
-    fetchData(); 
+    });
+   return () => subscriber();
   }, []);
   return (
     <View style={styles.container}>

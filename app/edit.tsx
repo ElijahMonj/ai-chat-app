@@ -43,22 +43,22 @@ const Edit = () => {
       });
     }, []);
     useEffect(() => {
-
       const subscriber = onSnapshot(collectionRef, {
-        next: (snapShot) => { 
-          snapShot.docs.forEach((doc)=>{
-            if(doc.id==params.id){
-              if(doc.data().custom && doc.data().owner==user?.uid){
-                setCharacter({
-                  id: doc.id,
-                  ...doc.data()
-                }); 
-                setDisplayImage(doc.data().avatar);
-              }else{
-                router.replace('/characters');
-              }
-            }  
-          });
+        next: (snapShot) => {
+          const doc = snapShot.docs.find((doc)=>doc.id==params.id)?.data(); 
+          if(doc){
+            if(doc.custom && doc.owner==user?.uid){
+              setCharacter({
+                id: params.id,
+                ...doc
+              }); 
+              setDisplayImage(doc.avatar);
+            }else{
+              router.replace('/characters');
+            }
+          }else{
+            router.replace('/characters');
+          }
         }
       });
      return () => subscriber();
@@ -79,7 +79,7 @@ const Edit = () => {
 
     async function submit(values:any){
       if((values.avatar === displayImage) && (values.name === character.name) && (values.description === character.description) && (values.tone === character.tone) && (values.backstory === character.backstory)){
-        console.log('no changes')
+        console.log('No changes detected.')
       }else if((values.avatar !== displayImage) && (values.name === character.name) && (values.description === character.description) && (values.tone === character.tone) && (values.backstory === character.backstory)){
         setIsLoading(true);
         const botAvatar = await uploadImage(displayImage as string);
@@ -87,7 +87,7 @@ const Edit = () => {
         const botDoc = doc(FIREBASE_DB, `bots/${params.id as string}`);
         updateDoc(botDoc, {avatar: botAvatar});
         deleteObject(desertRef).then(() => {
-          console.log('deleted old avatar')
+          console.log('Old avatar deleted.')
         }).catch((error) => {
           console.log(error)
         });
@@ -97,12 +97,12 @@ const Edit = () => {
         setIsLoading(true);
         let avatar = values.avatar;
         if(avatar !== displayImage){
-          console.log('uploading new avatar')
+          console.log('Uploading new avatar...')
           const botAvatar = await uploadImage(displayImage as string);
           avatar = botAvatar;
           const desertRef = ref(getStorage(), character.avatar);
             deleteObject(desertRef).then(() => {
-              console.log('deleted old avatar')
+              console.log('Old avatar deleted')
             }).catch((error) => {
               console.log(error)
             });
@@ -177,7 +177,7 @@ const Edit = () => {
     deleteDoc(conversationRef);
     const desertRef = ref(getStorage(), character.avatar);
     deleteObject(desertRef).then(() => {
-      console.log('deleted avatar')
+      console.log('Deleting ai resources...')
     }).catch((error) => {
       console.log(error)
     });

@@ -50,67 +50,79 @@ const Conversation = () => {
   const conversationRef=collection(FIREBASE_DB, 'users', user?.uid as string,'conversations'); 
   const unsubscriber = onSnapshot(collection(FIREBASE_DB, 'bots'), {
     next: (snapShot) => { 
-      snapShot.docs.forEach((botDoc)=>{ 
-        if(botDoc.id==params.id){
-          console.log("Bot found!")
-          setBotState({
-            id: botDoc.id,
-            ...botDoc.data()    
-          });
-          
-          nav.setOptions({
-            title:botDoc.data().name,
-            headerRight: () => (
-              <Pressable onPress={() => {setModalVisible(true);}}>
-                {({ pressed }) => (
-                  <MaterialCommunityIcons
-                    name="delete-outline"
-                    size={25}
-                    color={Colors[useColorScheme() ?? 'light'].text}
-                    style={{ marginRight: Platform.OS ==='web' ? 15 : 0, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            ),
-          });
-          const subscriber = onSnapshot(conversationRef, {
-           
-            next: (snapShot) => { 
-              snapShot.docs.forEach((doc)=>{ 
-                if(doc.id==params.id){
-                  let msgs = doc.data().messages.sort((a: { createdAt: number; }, b: { createdAt: number; }) => a.createdAt - b.createdAt);
-                  msgs.reverse();
-                    //get messate data
-                  const updatedMessages = msgs.map((msg:any) => {
-              
-                    if (msg.user._id !== user?.uid as string) {
-                      return {
-                        _id: msg._id,
-                        createdAt: msg.createdAt,
-                        text: msg.text,
-                        user: { 
-                          _id: msg._id, name: botDoc.data()?.name, avatar: botDoc.data()?.avatar 
-                        },
-                      };
-                    } else {
-                      return msg; 
-                    }
-                  });
-                  //put avatar and name to bot messages
-                  console.log(updatedMessages[0].text)
-                  setMessageState(updatedMessages);
-                  
-                }  
-              });
-              setIsLoading(false);
-            }
-          });
+      
+        const botDoc = snapShot.docs.find((doc)=>doc.id==params.id)?.data();
+        
+        
+  
+        if(botDoc){
+          if(!botDoc.custom || botDoc.owner == user?.uid){
+            setBotState({
+              id: params.id,
+              ...botDoc    
+            });
+            
+            nav.setOptions({
+              title:botDoc.name,
+              headerRight: () => (
+                <Pressable onPress={() => {setModalVisible(true);}}>
+                  {({ pressed }) => (
+                    <MaterialCommunityIcons
+                      name="delete-outline"
+                      size={25}
+                      color={Colors[useColorScheme() ?? 'light'].text}
+                      style={{ marginRight: Platform.OS ==='web' ? 15 : 0, opacity: pressed ? 0.5 : 1 }}
+                    />
+                  )}
+                </Pressable>
+              ),
+            });
+            const subscriber = onSnapshot(conversationRef, {
+            
+              next: (snapShot) => { 
+                const mDoc = snapShot.docs.find((doc)=>doc.id==params.id)?.data();
+                  if(mDoc){
+                    let msgs = mDoc.messages.sort((a: { createdAt: number; }, b: { createdAt: number; }) => a.createdAt - b.createdAt);
+                    msgs.reverse();
+                      //get messate data
+                    const updatedMessages = msgs.map((msg:any) => {
+                
+                      if (msg.user._id !== user?.uid as string) {
+                        return {
+                          _id: msg._id,
+                          createdAt: msg.createdAt,
+                          text: msg.text,
+                          user: { 
+                            _id: msg._id, name: botDoc.name, avatar: botDoc.avatar 
+                          },
+                        };
+                      } else {
+                        return msg; 
+                      }
+                    });               
+                    setMessageState(updatedMessages);          
+                  }  
+                
+                setIsLoading(false);
+              }
+            });
+            unsub = () => {
+              console.log('unsubscribing from conversation');
+              subscriber();
+            };
+          }else{
+            unsub = () => {
+              console.log('Error accessing conversation.');
+            };
+            router.replace('/');
+          }     
+        }else{
           unsub = () => {
-            console.log('unsubscribing from conversation');
-            subscriber();
+            console.log('Invalid link. Redirecting to home page.');
           };
+          router.replace('/');
         }
-      });
+      
     }
   });
   
