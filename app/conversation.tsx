@@ -107,7 +107,7 @@ const Conversation = () => {
               }
             });
             unsub = () => {
-              console.log('unsubscribing from conversation');
+              
               subscriber();
             };
           }else{
@@ -128,7 +128,6 @@ const Conversation = () => {
   
   return () => {
     unsub();
-    console.log('unsubscribing from bot');
     unsubscriber();
   }
 
